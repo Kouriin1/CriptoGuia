@@ -4,7 +4,7 @@ import { LogoIcon } from './icons';
 
 const Header: React.FC = () => {
   const navItems = ['IA', 'Cómo gestionar cripto', 'Compra y Venta', 'USDT en Venezuela'];
-
+//yo
   return (
     <header className="bg-gray-900/80 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-700/50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">

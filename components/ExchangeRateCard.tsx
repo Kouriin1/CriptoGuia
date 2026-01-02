@@ -62,7 +62,7 @@ const ExchangeRateCard: React.FC = () => {
               Actualizado en tiempo real
             </p>
           </div>
-          <button className="text-xs font-bold text-[#f3ba2f] hover:underline">Ver Histórico</button>
+
         </div>
       </div>
       {/* Decorative gradient line at the bottom */}

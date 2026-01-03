@@ -10,6 +10,7 @@ import usdcImg from '../img/usdc_logo.png';
 import kontigoImg from '../img/kontigo_logo.png';
 import TrustWalletImg from '../img/trust-wallet.png';
 import BinancePayImg from '../img/comprobante_binance.jpeg';
+import { a } from 'framer-motion/client';
 
 const Education: React.FC = () => {
     const { isDark } = useTheme();
@@ -23,7 +24,7 @@ const Education: React.FC = () => {
             setExpandedTerm(term);
         }
     };
-
+    
     const glossaryTerms = [
         {
             term: 'Blockchain',

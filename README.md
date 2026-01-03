@@ -41,6 +41,28 @@ Este proyecto ha sido construido utilizando un stack moderno y eficiente:
 - **Estilos:** [Tailwind CSS](https://tailwindcss.com/) para un diseño responsivo y personalizable.
 - **Iconos:** SVG personalizados y optimizados.
 
+## 📂 Estructura del Proyecto
+
+```
+CriptoGuiaVE/
+├── components/             # Componentes de React reutilizables
+│   ├── AIChat.tsx          # Asistente virtual inteligente
+│   ├── Education.tsx       # Módulo educativo principal
+│   ├── Simulator.tsx       # Calculadora de conversión
+│   ├── Security.tsx        # Sección de seguridad y estafas
+│   ├── GlobalMarket.tsx    # Datos de mercado global
+│   └── ...
+├── contexts/
+│   └── ThemeContext.tsx    # Manejo del tema (Claro/Oscuro)
+├── img/                    # Recursos gráficos e imágenes
+├── services/
+│   └── geminiService.ts    # Integración con IA (Gemini)
+├── App.tsx                 # Componente raíz y enrutamiento
+├── index.css               # Estilos globales y Tailwind
+├── types.ts                # Definiciones de tipos TypeScript
+└── vite.config.ts          # Configuración de Vite
+```
+
 ## 🏁 Cómo Iniciar
 
 Sigue estos pasos para ejecutar el proyecto localmente:
@@ -60,8 +82,6 @@ Sigue estos pasos para ejecutar el proyecto localmente:
     ```bash
     npm run dev
     ```
-
-4.  Abre tu navegador en `http://localhost:5173` (o el puerto que indique la consola).
 
 ## 🔮 Hoja de Ruta (Roadmap) y Mejoras Futuras
 

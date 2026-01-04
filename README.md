@@ -2,8 +2,6 @@
 
 **Tu brújula en el ecosistema cripto de Venezuela.**
 
-![CriptoGuíaVE Banner](https://via.placeholder.com/1200x400?text=CriptoGuiaVE+Banner)
-
 ## 📖 Descripción del Proyecto
 
 **CriptoGuíaVE** es una plataforma web diseñada específicamente para el usuario venezolano, con el objetivo de educar, facilitar y asegurar la adopción de criptomonedas en el país. En un entorno económico donde las criptomonedas juegan un papel fundamental para el ahorro, las remesas y el comercio diario, esta herramienta busca cerrar la brecha de conocimiento y proporcionar utilidades prácticas.
@@ -14,90 +12,201 @@ La aplicación combina recursos educativos profundos con herramientas de simulac
 
 ### 1. 🏠 Panel Principal (Dashboard)
 Una vista general del mercado con información relevante al instante:
-- **Tasas de Cambio:** Visualización del precio del dólar (BCV y Paralelo) y criptomonedas clave.
+- **Tasas de Cambio en Tiempo Real:** Precio del dólar paralelo obtenido de Binance P2P.
 - **Perspectivas de Mercado:** Análisis de tendencias actuales.
 - **Distribución de Activos:** Gráficos visuales para entender la diversificación.
 - **Chat IA:** Un asistente inteligente integrado para responder dudas rápidas sobre cripto.
 
 ### 2. 📚 Centro Educativo (Core del Proyecto)
 El corazón de la aplicación, diseñado para llevar al usuario de principiante a experto:
-- **Glosario Interactivo:** Términos complejos explicados de forma sencilla, con ejemplos reales del contexto venezolano (ej. Binance P2P, Zinli) e ilustraciones visuales.
-- **Guías Paso a Paso:** Tutoriales detallados para operaciones esenciales (instalar wallets, comprar USDT, etc.), acompañados de enlaces directos a videos de YouTube verificados.
-- **Casos de Uso:** Ejemplos prácticos de cómo las criptomonedas resuelven problemas diarios en Venezuela (remesas, protección contra inflación).
+- **Glosario Interactivo:** Términos complejos explicados de forma sencilla.
+- **Guías Paso a Paso:** Tutoriales detallados para operaciones esenciales.
+- **Casos de Uso:** Ejemplos prácticos de cómo las criptomonedas resuelven problemas diarios.
 
 ### 3. 🔢 Simulador de Conversión
-Herramienta calculadora que permite a los usuarios estimar conversiones entre Bolívares (VES) y Criptomonedas (USDT, BTC, ETH) en tiempo real, facilitando la toma de decisiones financieras.
+Herramienta calculadora que permite estimar conversiones entre Bolívares (VES) y Criptomonedas (USDT, BTC, ETH) en tiempo real.
 
 ### 4. 🛡️ Centro de Seguridad
-Sección dedicada a la prevención de estafas y buenas prácticas:
-- Lista de las estafas más comunes en el país (Phishing, Ponzis, etc.).
-- Checklist de seguridad para proteger tus activos.
+Sección dedicada a la prevención de estafas y buenas prácticas.
+
+---
 
 ## 🛠️ Tecnologías Utilizadas
 
-Este proyecto ha sido construido utilizando un stack moderno y eficiente:
-- **Frontend:** [React](https://reactjs.org/) con [TypeScript](https://www.typescriptlang.org/) para una experiencia de usuario robusta y segura.
-- **Build Tool:** [Vite](https://vitejs.dev/) para un desarrollo rápido y optimizado.
-- **Estilos:** [Tailwind CSS](https://tailwindcss.com/) para un diseño responsivo y personalizable.
-- **Iconos:** SVG personalizados y optimizados.
+| Tecnología | Uso |
+|------------|-----|
+| **React** + **TypeScript** | Frontend |
+| **Vite** | Build tool y dev server |
+| **Tailwind CSS** | Estilos |
+| **Netlify Functions** | Backend serverless |
+| **Binance P2P API** | Tasa del dólar paralelo |
+| **Gemini AI** | Chat inteligente |
+
+---
 
 ## 📂 Estructura del Proyecto
 
 ```
 CriptoGuiaVE/
-├── components/             # Componentes de React reutilizables
-│   ├── AIChat.tsx          # Asistente virtual inteligente
-│   ├── Education.tsx       # Módulo educativo principal
-│   ├── Simulator.tsx       # Calculadora de conversión
-│   ├── Security.tsx        # Sección de seguridad y estafas
-│   ├── GlobalMarket.tsx    # Datos de mercado global
-│   └── ...
+├── components/               # Componentes de React
+│   ├── AIChat.tsx            # Asistente virtual IA
+│   ├── Education.tsx         # Módulo educativo
+│   ├── ExchangeRateCard.tsx  # Tarjeta de tasa USD/VES
+│   ├── Simulator.tsx         # Calculadora de conversión
+│   ├── Security.tsx          # Sección de seguridad
+│   └── icons.tsx             # Iconos SVG
 ├── contexts/
-│   └── ThemeContext.tsx    # Manejo del tema (Claro/Oscuro)
-├── img/                    # Recursos gráficos e imágenes
+│   └── ThemeContext.tsx      # Tema claro/oscuro
+├── netlify/
+│   └── functions/
+│       └── binance-rate.ts   # ⭐ Función serverless Binance P2P
 ├── services/
-│   └── geminiService.ts    # Integración con IA (Gemini)
-├── App.tsx                 # Componente raíz y enrutamiento
-├── index.css               # Estilos globales y Tailwind
-├── types.ts                # Definiciones de tipos TypeScript
-└── vite.config.ts          # Configuración de Vite
+│   ├── geminiService.ts      # Integración con Gemini AI
+│   └── binanceService.ts     # Cliente para la API de Binance
+├── App.tsx                   # Componente raíz
+├── netlify.toml              # Configuración de Netlify
+└── vite.config.ts            # Configuración de Vite
 ```
+
+---
 
 ## 🏁 Cómo Iniciar
 
-Sigue estos pasos para ejecutar el proyecto localmente:
+### Requisitos previos
+- Node.js 18+
+- npm o yarn
+- Netlify CLI (para desarrollo con functions)
 
-1.  **Clonar el repositorio:**
-    ```bash
-    git clone https://github.com/tu-usuario/CriptoGuiaVE.git
-    cd CriptoGuiaVE
-    ```
+### Instalación
 
-2.  **Instalar dependencias:**
-    ```bash
-    npm install
-    ```
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/tu-usuario/CriptoGuiaVE.git
+cd CriptoGuiaVE
 
-3.  **Iniciar el servidor de desarrollo:**
-    ```bash
-    npm run dev
-    ```
+# 2. Instalar dependencias
+npm install
 
-## 🔮 Hoja de Ruta (Roadmap) y Mejoras Futuras
+# 3. Instalar Netlify CLI (si no lo tienes)
+npm install -g netlify-cli
+```
 
-Para llevar CriptoGuíaVE al siguiente nivel, se proponen las siguientes implementaciones:
+### Desarrollo Local
 
-- [ ] **API en Tiempo Real:** Conectar con APIs de exchanges (Binance, CoinGecko) y monitores de dólar para mostrar tasas en vivo automáticas.
-- [ ] **Autenticación de Usuario:** Permitir a los usuarios registrarse para guardar su progreso educativo y portafolio simulado.
-- [ ] **Calculadora P2P Avanzada:** Una herramienta que calcule comisiones específicas de diferentes métodos de pago en Venezuela.
-- [ ] **Directorio de Comercios:** Un mapa o lista de negocios en Venezuela que aceptan criptomonedas.
-- [ ] **Modo Offline:** Hacer la aplicación una PWA (Progressive Web App) para consultar guías sin internet.
+```bash
+# ⭐ RECOMENDADO: Frontend + Netlify Functions
+npm run dev:full
 
-## 📄 Derechos de Autor y Licencia
+# Solo frontend (sin functions de Binance)
+npm run dev
+```
+
+La app estará disponible en:
+- **Con functions:** `http://localhost:8888`
+- **Solo frontend:** `http://localhost:3000`
+
+---
+
+## 🔌 Integración Binance P2P
+
+### Arquitectura
+
+```
+┌──────────────┐     ┌─────────────────────┐     ┌─────────────────┐
+│   Frontend   │────▶│  Netlify Function   │────▶│  Binance P2P    │
+│              │     │  /binance-rate      │     │  API            │
+└──────────────┘     └─────────────────────┘     └─────────────────┘
+```
+
+### ¿Por qué una Netlify Function?
+
+La API de Binance P2P tiene restricciones **CORS** que impiden llamarla directamente desde el navegador. La function actúa como proxy:
+
+1. El frontend llama a `/.netlify/functions/binance-rate`
+2. La function (servidor) llama a Binance P2P
+3. Binance responde a la function
+4. La function devuelve los datos al frontend
+
+### Endpoint de Binance P2P
+
+```
+POST https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search
+```
+
+**Body:**
+```json
+{
+  "asset": "USDT",
+  "fiat": "VES",
+  "tradeType": "SELL",
+  "page": 1,
+  "rows": 5
+}
+```
+
+### Respuesta de la Function
+
+```json
+{
+  "success": true,
+  "rate": 597.98,          // Promedio de los 5 primeros anuncios
+  "firstPrice": 600,       // Precio más bajo
+  "prices": [600, 598, 597, 596, 599],
+  "adsCount": 5,
+  "timestamp": "2026-01-04T17:30:00.000Z"
+}
+```
+
+### Probar la Function
+
+```bash
+# Localmente (con netlify dev corriendo)
+curl http://localhost:8888/.netlify/functions/binance-rate
+
+# En producción
+curl https://tuapp.netlify.app/.netlify/functions/binance-rate
+```
+
+---
+
+## 📤 Despliegue
+
+### Despliegue Automático (Netlify)
+
+1. Conecta tu repositorio de GitHub a Netlify
+2. Netlify detectará automáticamente la configuración
+3. Cada push a `main` desplegará automáticamente
+
+### Configuración de Build (netlify.toml)
+
+```toml
+[functions]
+  directory = "netlify/functions"
+
+[dev]
+  command = "npm run dev"
+  targetPort = 3000
+  port = 8888
+```
+
+---
+
+## 🔮 Roadmap
+
+- [x] Tasa del dólar paralelo en tiempo real (Binance P2P)
+- [ ] Tasa oficial BCV (web scraping)
+- [ ] Autenticación de usuarios
+- [ ] Historial de tasas con gráficos
+- [ ] PWA (modo offline)
+
+---
+
+## 📄 Licencia
 
 **© 2026 CriptoGuíaVE.** Todos los derechos reservados.
 
-Este proyecto es de uso educativo e informativo. El contenido y el código fuente son propiedad intelectual de sus creadores. Queda prohibida la reproducción total o parcial con fines comerciales sin autorización previa.
+Este proyecto es de uso educativo e informativo.
 
 ---
+
 *Desarrollado por Roger Montero 😊*

@@ -188,6 +188,9 @@ curl https://tuapp.netlify.app/.netlify/functions/binance-rate
   targetPort = 3000
   port = 8888
 ```
+## Tambien intenta correr si no funciona el binance ##
+
+npm run dev:full
 
 ---
 

@@ -58,30 +58,32 @@ const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
             ))}
           </nav>
 
-          {/* Mobile Nav Overlay (Simplified for this view, assuming bottom nav or hamburger in full app, but for now scrolling list) */}
-          <div className="md:hidden w-full overflow-x-auto pb-2 absolute top-[70px] left-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-4 flex gap-2 no-scrollbar scroll-smooth">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => onTabChange(tab.id)}
-                className={`
-                  flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all border
-                  ${activeTab === tab.id
-                    ? 'bg-[#f3ba2f] border-[#f3ba2f] text-gray-900'
-                    : 'bg-transparent border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
-                  }
-                `}
-              >
-                <span className="mr-1">{tab.icon}</span>
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
           {/* Toggle de tema a la derecha */}
           <div className="flex-shrink-0">
             <ThemeToggle />
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Nav - Ahora dentro del flujo normal, no absolute */}
+      <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
+        <div className="overflow-x-auto px-4 py-2 flex gap-2 no-scrollbar scroll-smooth">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`
+                flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all border
+                ${activeTab === tab.id
+                  ? 'bg-[#f3ba2f] border-[#f3ba2f] text-gray-900'
+                  : 'bg-transparent border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
+                }
+              `}
+            >
+              <span className="mr-1">{tab.icon}</span>
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
     </header>

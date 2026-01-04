@@ -28,9 +28,9 @@ const AIChat: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  //useEffect(() => {
+  //  scrollToBottom();
+  //}, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();

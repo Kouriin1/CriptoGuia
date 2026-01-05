@@ -2,33 +2,39 @@ import React, { useState } from 'react';
 import { useTheme } from './contexts/ThemeContext';
 import Header from './components/Header';
 import ExchangeRateCard from './components/ExchangeRateCard';
-import MarketPerspectives from './components/MarketPerspectives';
+import DailyInsight from './components/DailyInsight';
 import AssetDistribution from './components/AssetDistribution';
 import GlobalMarket from './components/GlobalMarket';
 import AIChat from './components/AIChat';
 import Education from './components/Education';
 import Simulator from './components/Simulator';
 import Security from './components/Security';
+import DollarAnalysis from './components/DollarAnalysis';
 
 // Vista de Inicio (home) con los componentes actuales
 const HomeView: React.FC = () => {
   const { isDark } = useTheme();
-  const textColor = isDark ? 'text-white' : 'text-gray-900';
 
   return (
     <main className="container mx-auto p-4 sm:p-6 lg:p-8">
       <div className="grid grid-cols-1 gap-6 lg:gap-8">
+        {/* Tasa principal - ancho completo */}
         <ExchangeRateCard />
+
+        {/* Insight del día - ancho completo, contenido educativo */}
+        <DailyInsight />
+
+        {/* Fila 3: Distribución + Mercado Global juntos (como antes) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-          <div className="lg:col-span-2">
-            <MarketPerspectives />
+          <div className="lg:col-span-1">
+            <DollarAnalysis />
           </div>
-          <div className="flex flex-col gap-6 lg:gap-8">
-            <AssetDistribution />
+          <div className="lg:col-span-2">
             <GlobalMarket />
           </div>
         </div>
 
+        {/* Chat IA */}
         <AIChat />
       </div>
     </main>

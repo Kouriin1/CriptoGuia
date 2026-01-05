@@ -82,7 +82,7 @@ export default async function handler() {
                 body: JSON.stringify({
                     asset: 'USDT',
                     fiat: 'VES',
-                    tradeType: 'SELL',
+                    tradeType: 'BUY',
                     page: 1,
                     rows: 5,
                 }),

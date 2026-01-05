@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { ArrowLeftRightIcon, RefreshIcon } from './icons';
 import { getBinanceRate } from '../services/binanceService';
+import { getCryptoPrices, CryptoPrice } from '../services/cryptoService';
 
 const Simulator: React.FC = () => {
     const { isDark } = useTheme();
@@ -14,17 +15,31 @@ const Simulator: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
     const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
 
-    // Tasas de otras criptos (referenciales)
-    const btcUsd = 95000;
-    const ethUsd = 3500;
+    // Precios reales de BTC y ETH desde CoinGecko
+    const [btcUsd, setBtcUsd] = useState<number>(95000);
+    const [ethUsd, setEthUsd] = useState<number>(3500);
 
-    // Cargar tasa real de Binance
-    const fetchRate = async () => {
+    // Cargar tasas
+    const fetchRates = async () => {
         try {
             setLoading(true);
-            const data = await getBinanceRate();
-            setUsdtVesRate(data.rate);
-            setLastUpdate(new Date(data.timestamp));
+
+            // Cargar tasa de Binance
+            const binanceData = await getBinanceRate();
+            setUsdtVesRate(binanceData.rate);
+            setLastUpdate(new Date(binanceData.timestamp));
+
+            // Cargar precios de CoinGecko
+            try {
+                const cryptoData = await getCryptoPrices();
+                const btc = cryptoData.prices.find(p => p.symbol === 'BTC');
+                const eth = cryptoData.prices.find(p => p.symbol === 'ETH');
+                if (btc) setBtcUsd(btc.price);
+                if (eth) setEthUsd(eth.price);
+            } catch (cryptoErr) {
+                console.warn('Error fetching crypto prices, using defaults:', cryptoErr);
+            }
+
             setError(null);
         } catch (err) {
             setError('Error al obtener tasa');
@@ -35,11 +50,21 @@ const Simulator: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchRate();
+        fetchRates();
         // Actualizar cada 2 minutos
-        const interval = setInterval(fetchRate, 120000);
+        const interval = setInterval(fetchRates, 120000);
         return () => clearInterval(interval);
     }, []);
+
+    // Limitar input a máximo 15 caracteres
+    const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        // Máximo 15 caracteres (para evitar overflow visual)
+        if (val.length > 15) return;
+        if (!val || parseFloat(val) >= 0) {
+            setAmount(val);
+        }
+    };
 
     const calculateConversions = () => {
         const numAmount = parseFloat(amount);
@@ -62,6 +87,14 @@ const Simulator: React.FC = () => {
     };
 
     const results = calculateConversions();
+
+    // Función para formatear números grandes (con límite visual)
+    const formatLargeNumber = (num: number): string => {
+        if (num >= 1e12) return `${(num / 1e12).toFixed(2)}T`;
+        if (num >= 1e9) return `${(num / 1e9).toFixed(2)}B`;
+        if (num >= 1e6) return `${(num / 1e6).toFixed(2)}M`;
+        return num.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    };
 
     return (
         <div className={`min-h-screen p-4 sm:p-6 lg:p-8 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
@@ -110,12 +143,7 @@ const Simulator: React.FC = () => {
                             <input
                                 type="number"
                                 value={amount}
-                                onChange={(e) => {
-                                    const val = e.target.value;
-                                    if (!val || parseFloat(val) >= 0) {
-                                        setAmount(val);
-                                    }
-                                }}
+                                onChange={handleAmountChange}
                                 onKeyDown={(e) => {
                                     if (['-', '+', 'e', 'E'].includes(e.key)) {
                                         e.preventDefault();
@@ -124,27 +152,31 @@ const Simulator: React.FC = () => {
                                 onWheel={(e) => e.currentTarget.blur()}
                                 placeholder="0.00"
                                 min="0"
-                                className="w-full text-center bg-transparent text-5xl sm:text-6xl font-black placeholder-gray-200 dark:placeholder-gray-700 outline-none transition-colors border-b-2 border-transparent focus:border-[#f3ba2f] pb-2 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                maxLength={15}
+                                className="w-full text-center bg-transparent text-4xl sm:text-5xl font-black placeholder-gray-200 dark:placeholder-gray-700 outline-none transition-colors border-b-2 border-transparent focus:border-[#f3ba2f] pb-2 appearance-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                                 autoFocus
                             />
-                            <span className="absolute top-1/2 -translate-y-1/2 right-0 text-xl font-bold text-gray-400 hidden sm:block pointer-events-none">
+                            <span className="absolute top-1/2 -translate-y-1/2 right-0 text-lg font-bold text-gray-400 pointer-events-none">
                                 {mode === 'ves-to-crypto' ? 'VES' : 'USDT'}
                             </span>
                         </div>
+                        <p className="text-center text-xs text-gray-400 mt-2">
+                            Máximo 15 dígitos
+                        </p>
                     </div>
 
                     {/* Tasas de referencia */}
-                    <div className="flex flex-wrap justify-center gap-4 text-xs font-medium text-gray-500 dark:text-gray-400">
+                    <div className="flex flex-wrap justify-center gap-3 text-xs font-medium text-gray-500 dark:text-gray-400">
                         <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${error
-                                ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
-                                : 'bg-gray-50 dark:bg-gray-700/30 border-gray-100 dark:border-gray-700'
+                            ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+                            : 'bg-gray-50 dark:bg-gray-700/30 border-gray-100 dark:border-gray-700'
                             }`}>
                             {loading ? (
-                                <span className="text-gray-400">Cargando tasa...</span>
+                                <span className="text-gray-400">Cargando...</span>
                             ) : error ? (
                                 <>
                                     <span className="text-red-500">Error</span>
-                                    <button onClick={fetchRate} className="text-red-500 hover:text-red-600">
+                                    <button onClick={fetchRates} className="text-red-500 hover:text-red-600">
                                         <RefreshIcon className="h-3 w-3" />
                                     </button>
                                 </>
@@ -155,12 +187,14 @@ const Simulator: React.FC = () => {
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                                     </span>
                                     USDT/VES: <span className="font-bold text-gray-900 dark:text-gray-200">{usdtVesRate?.toFixed(2)}</span>
-                                    <span className="text-[10px] text-gray-400">(Binance P2P)</span>
                                 </>
                             )}
                         </div>
                         <div className="bg-gray-50 dark:bg-gray-700/30 px-3 py-1.5 rounded-lg border border-gray-100 dark:border-gray-700">
-                            BTC/USD: <span className="font-bold text-gray-900 dark:text-gray-200">${btcUsd.toLocaleString()}</span>
+                            BTC: <span className="font-bold text-gray-900 dark:text-gray-200">${btcUsd.toLocaleString()}</span>
+                        </div>
+                        <div className="bg-gray-50 dark:bg-gray-700/30 px-3 py-1.5 rounded-lg border border-gray-100 dark:border-gray-700">
+                            ETH: <span className="font-bold text-gray-900 dark:text-gray-200">${ethUsd.toLocaleString()}</span>
                         </div>
                     </div>
 
@@ -168,7 +202,7 @@ const Simulator: React.FC = () => {
                     {lastUpdate && !loading && !error && (
                         <div className="text-center mt-4">
                             <p className="text-[10px] text-gray-400">
-                                Última actualización: {lastUpdate.toLocaleTimeString()}
+                                Actualizado: {lastUpdate.toLocaleTimeString()} • Binance P2P + CoinGecko
                             </p>
                         </div>
                     )}
@@ -178,7 +212,7 @@ const Simulator: React.FC = () => {
                 {loading && !usdtVesRate ? (
                     <div className="text-center p-12">
                         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#f3ba2f]"></div>
-                        <p className="mt-4 text-gray-500">Cargando tasa de Binance P2P...</p>
+                        <p className="mt-4 text-gray-500">Cargando tasas en tiempo real...</p>
                     </div>
                 ) : results ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fade-in-up">
@@ -190,7 +224,7 @@ const Simulator: React.FC = () => {
                             </>
                         ) : (
                             <>
-                                <ResultCard label="Bolívares" symbol="VES" amount={results.ves.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} icon="🇻🇪" color="text-[#f3ba2f]" subtext="Moneda Local" />
+                                <ResultCard label="Bolívares" symbol="VES" amount={formatLargeNumber(results.ves)} icon="🇻🇪" color="text-[#f3ba2f]" subtext="Moneda Local" />
                                 <ResultCard label="Bitcoin" symbol="BTC" amount={results.btc.toFixed(8)} icon="₿" color="text-orange-500" subtext="Equivalente" />
                                 <ResultCard label="Ethereum" symbol="ETH" amount={results.eth.toFixed(6)} icon="Ξ" color="text-blue-500" subtext="Equivalente" />
                             </>
@@ -222,7 +256,7 @@ const ResultCard = ({ label, symbol, amount, icon, color, subtext }: any) => {
                 <div className="text-4xl opacity-20">{icon}</div>
             </div>
 
-            <p className={`text-2xl sm:text-3xl font-black ${color} tracking-tight`}>
+            <p className={`text-2xl sm:text-3xl font-black ${color} tracking-tight break-all`}>
                 {amount}
             </p>
             <p className="text-xs font-medium text-gray-400 mt-2">{subtext}</p>

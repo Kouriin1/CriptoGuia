@@ -49,7 +49,7 @@ const ExchangeRateCard: React.FC = () => {
     }
 
     fetchRate();
-    const interval = setInterval(fetchRate, 60000);
+    const interval = setInterval(fetchRate, 120000);
     return () => clearInterval(interval);
   }, []);
 

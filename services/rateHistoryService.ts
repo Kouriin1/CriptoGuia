@@ -138,19 +138,33 @@ export function analyzeTrend(currentRate: number): TrendAnalysis {
     const todayChange = currentRate - yesterdayRate;
     const todayChangePercent = (todayChange / yesterdayRate) * 100;
 
-    // Calcular tendencia (últimos 3-5 días)
+    // Calcular tendencia basada en cambio porcentual
     const recentEntries = updatedHistory.entries.slice(0, 5);
     let trend: TrendType = 'ESTABLE';
     let consecutiveDays = 0;
 
-    if (recentEntries.length >= 2) {
+    // PRIMERO: Si el cambio de hoy es significativo (>2%), eso define la tendencia inmediatamente
+    const SIGNIFICANT_CHANGE_THRESHOLD = 2; // 2% es un cambio significativo en un día
+
+    if (todayChangePercent >= SIGNIFICANT_CHANGE_THRESHOLD) {
+        trend = 'ALCISTA';
+        consecutiveDays = 1;
+    } else if (todayChangePercent <= -SIGNIFICANT_CHANGE_THRESHOLD) {
+        trend = 'BAJISTA';
+        consecutiveDays = 1;
+    } else if (recentEntries.length >= 2) {
+        // SEGUNDO: Si el cambio de hoy es pequeño, revisar tendencia de varios días
         let upDays = 0;
         let downDays = 0;
 
         for (let i = 0; i < recentEntries.length - 1; i++) {
-            const diff = recentEntries[i].rate - recentEntries[i + 1].rate;
-            if (diff > 0.5) upDays++;      // Subió más de 0.5 Bs
-            else if (diff < -0.5) downDays++; // Bajó más de 0.5 Bs
+            const prevRate = recentEntries[i + 1].rate;
+            const currRate = recentEntries[i].rate;
+            const percentDiff = ((currRate - prevRate) / prevRate) * 100;
+
+            // Usar umbral relativo de 0.5% en lugar de 0.5 Bs
+            if (percentDiff > 0.5) upDays++;
+            else if (percentDiff < -0.5) downDays++;
         }
 
         if (upDays >= 2 && upDays > downDays) {

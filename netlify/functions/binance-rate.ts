@@ -78,13 +78,20 @@ export default async function handler() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                 },
                 body: JSON.stringify({
                     asset: 'USDT',
                     fiat: 'VES',
                     tradeType: 'BUY',
                     page: 1,
-                    rows: 5,
+                    rows: 10,
+                    // Filtrar por bancos populares de Venezuela
+                    payTypes: ['Banesco', 'Mercantil', 'Provincial', 'BankTransfer', 'Pago Movil', 'Bancamiga'],
+                    countries: [],
+                    publisherType: null,
+                    proMerchantAds: false,
+                    shieldMerchantAds: false,
                 }),
             }
         );

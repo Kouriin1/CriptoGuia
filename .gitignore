@@ -26,3 +26,4 @@ trabajo.md
 
 # Local Netlify folder
 .netlify
+.env

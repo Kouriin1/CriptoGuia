@@ -40,7 +40,7 @@ Sección dedicada a la prevención de estafas y buenas prácticas.
 | **Tailwind CSS** | Estilos |
 | **Netlify Functions** | Backend serverless |
 | **Binance P2P API** | Tasa del dólar paralelo |
-| **Gemini AI** | Chat inteligente |
+| **Groq API** | Chat inteligente (LLaMA 3.3 70B) |
 
 ---
 
@@ -52,6 +52,7 @@ CriptoGuiaVE/
 │   ├── AIChat.tsx            # Asistente virtual IA
 │   ├── Education.tsx         # Módulo educativo
 │   ├── ExchangeRateCard.tsx  # Tarjeta de tasa USD/VES
+│   ├── GlobalMarket.tsx      # Precios de criptomonedas
 │   ├── Simulator.tsx         # Calculadora de conversión
 │   ├── Security.tsx          # Sección de seguridad
 │   └── icons.tsx             # Iconos SVG
@@ -61,9 +62,11 @@ CriptoGuiaVE/
 │   └── functions/
 │       └── binance-rate.ts   # ⭐ Función serverless Binance P2P
 ├── services/
-│   ├── geminiService.ts      # Integración con Gemini AI
+│   ├── IAService.ts          # ⭐ Integración con Groq AI
+│   ├── cryptoService.ts      # API de CoinGecko (precios)
 │   └── binanceService.ts     # Cliente para la API de Binance
 ├── App.tsx                   # Componente raíz
+├── vite-env.d.ts             # Tipos de Vite (import.meta.env)
 ├── netlify.toml              # Configuración de Netlify
 └── vite.config.ts            # Configuración de Vite
 ```
@@ -166,6 +169,112 @@ curl http://localhost:8888/.netlify/functions/binance-rate
 # En producción
 curl https://tuapp.netlify.app/.netlify/functions/binance-rate
 ```
+
+---
+
+## 🤖 Integración Chat IA (Groq)
+
+### Arquitectura
+
+```
+┌──────────────┐     ┌─────────────────────┐     ┌─────────────────┐
+│   AIChat.tsx │────▶│   IAService.ts      │────▶│   Groq API      │
+│  (Frontend)  │     │   (Service Layer)   │     │  (LLaMA 3.3)    │
+└──────────────┘     └─────────────────────┘     └─────────────────┘
+```
+
+### Componentes del Sistema
+
+| Archivo | Descripción |
+|---------|-------------|
+| `services/IAService.ts` | Servicio que maneja la comunicación con Groq API |
+| `components/AIChat.tsx` | Componente React del chat con UI completa |
+| `.env` | Almacena la API key de Groq |
+| `vite-env.d.ts` | Tipos TypeScript para variables de entorno |
+
+### Configuración
+
+1. **Obtener API Key de Groq:**
+   - Regístrate en [console.groq.com](https://console.groq.com)
+   - Crea una nueva API key
+   - Es **GRATIS** con límites generosos
+
+2. **Configurar variable de entorno:**
+   ```bash
+   # .env (en la raíz del proyecto)
+   VITE_API_KEY=gsk_tu_api_key_aqui
+   ```
+
+3. **Reiniciar el servidor de desarrollo:**
+   ```bash
+   npm run dev
+   ```
+
+### Características Implementadas
+
+#### ✅ Respuestas Contextuales
+- La IA mantiene contexto de los últimos 10 mensajes
+- Responde SOLO sobre criptomonedas (rechaza otros temas)
+- Enfocada en el contexto venezolano (bolívares, P2P, etc.)
+
+#### ✅ Persistencia del Chat
+- El historial se guarda en `localStorage`
+- Sobrevive recargas de página
+- Botón "Limpiar" para resetear conversación
+
+#### ✅ Límite de Mensajes Diarios
+- **10 mensajes por día** por usuario
+- Se resetea automáticamente a medianoche
+- Contador visual en la UI
+- Previene abuso de la API gratuita
+
+### System Prompt (Instrucciones de la IA)
+
+El asistente está configurado para:
+- ✅ Responder sobre cripto, wallets, exchanges, seguridad
+- ✅ Considerar el contexto venezolano
+- ✅ Mantener respuestas concisas (3-4 oraciones)
+- ❌ Rechazar temas no relacionados (política, deportes, etc.)
+- ❌ No usar formato markdown en respuestas
+
+### Estructura del Código
+
+#### `IAService.ts`
+```typescript
+// Configuración
+const GROQ_API_KEY = import.meta.env.VITE_API_KEY;
+const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+// Función principal
+export async function sendMessageToAI(
+  message: string,                    // Mensaje del usuario
+  chatHistory: Array<{...}> = []      // Historial para contexto
+): Promise<string>                    // Retorna respuesta de texto
+```
+
+#### `AIChat.tsx`
+```typescript
+// Claves de localStorage
+const STORAGE_KEY = 'criptoguia_chat_history';     // Historial
+const MESSAGE_COUNT_KEY = 'criptoguia_message_count'; // Contador
+const MESSAGE_DATE_KEY = 'criptoguia_message_date';   // Fecha
+const MAX_MESSAGES_PER_SESSION = 10;               // Límite diario
+```
+
+### Modelo de IA Utilizado
+
+| Propiedad | Valor |
+|-----------|-------|
+| Proveedor | Groq (gratuito) |
+| Modelo | `llama-3.3-70b-versatile` |
+| Temperature | 0.7 (balance creatividad/precisión) |
+| Max Tokens | 500 (longitud máxima de respuesta) |
+
+### Manejo de Errores
+
+1. **Sin API Key:** Muestra mensaje informando que IA no está disponible
+2. **Error de API:** Muestra mensaje amigable al usuario
+3. **Límite alcanzado:** Deshabilita input y muestra contador
 
 ---
 

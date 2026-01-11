@@ -65,7 +65,7 @@ const AIChat: React.FC = () => {
 
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   const remainingMessages = MAX_MESSAGES_PER_SESSION - messageCount;
   const hasReachedLimit = remainingMessages <= 0;
@@ -88,10 +88,12 @@ const AIChat: React.FC = () => {
     }
   }, [messageCount]);
 
-  // Auto-scroll al último mensaje
-  //  useEffect(() => {
-  //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  //  }, [messages]);
+  // Auto-scroll al último mensaje (solo dentro del contenedor del chat)
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
 
   const handleClearChat = () => {
     setMessages([getWelcomeMessage()]);
@@ -191,7 +193,7 @@ const AIChat: React.FC = () => {
       </div>
 
       {/* Área de Mensajes */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 dark:bg-gray-900/50">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`
@@ -229,7 +231,6 @@ const AIChat: React.FC = () => {
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
       {/* Input Area */}

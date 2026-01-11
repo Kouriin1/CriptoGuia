@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import { motion } from 'framer-motion';
 import { ShieldCheckIcon, AlertTriangleIcon, CheckCircleIcon, XCircleIcon } from './icons';
 
 const Security: React.FC = () => {
@@ -52,15 +53,47 @@ const Security: React.FC = () => {
     ];
 
     const securityChecklist = [
-        { item: '¿Tienes activado el 2FA en tus exchanges?', critical: true },
-        { item: '¿Tu seed phrase está guardada en un lugar seguro offline?', critical: true },
-        { item: '¿Usas contraseñas diferentes para cada plataforma?', critical: true },
-        { item: '¿Verificas las direcciones antes de enviar cripto?', critical: true },
-        { item: '¿Desconfías de mensajes no solicitados sobre criptomonedas?', critical: false },
-        { item: '¿Actualizas regularmente tus aplicaciones de wallet?', critical: false },
-        { item: '¿Evitas hablar públicamente de cuánto tienes en cripto?', critical: false },
-        { item: '¿Usas una wallet diferente para montos grandes (cold wallet)?', critical: false },
+        { id: '2fa', item: '¿Tienes activado el 2FA en tus exchanges?', critical: true },
+        { id: 'seed_offline', item: '¿Tu seed phrase está guardada en un lugar seguro offline?', critical: true },
+        { id: 'unique_pwd', item: '¿Usas contraseñas diferentes para cada plataforma?', critical: true },
+        { id: 'verify_addr', item: '¿Verificas las direcciones antes de enviar cripto?', critical: true },
+        { id: 'suspicious_msgs', item: '¿Desconfías de mensajes no solicitados sobre criptomonedas?', critical: false },
+        { id: 'update_apps', item: '¿Actualizas regularmente tus aplicaciones de wallet?', critical: false },
+        { id: 'privacy', item: '¿Evitas hablar públicamente de cuánto tienes en cripto?', critical: false },
+        { id: 'cold_wallet', item: '¿Usas una wallet diferente para montos grandes (cold wallet)?', critical: false },
     ];
+
+    // State for checklist persistence
+    const [checkedState, setCheckedState] = useState<Record<string, boolean>>(() => {
+        const saved = localStorage.getItem('security_checklist_progress');
+        return saved ? JSON.parse(saved) : {};
+    });
+
+    const [score, setScore] = useState(0);
+
+    useEffect(() => {
+        localStorage.setItem('security_checklist_progress', JSON.stringify(checkedState));
+
+        // Calculate score
+        const totalItems = securityChecklist.length;
+        const checkedCount = Object.values(checkedState).filter(Boolean).length;
+        setScore(Math.round((checkedCount / totalItems) * 100));
+    }, [checkedState]);
+
+    const handleCheck = (id: string) => {
+        setCheckedState(prev => ({
+            ...prev,
+            [id]: !prev[id]
+        }));
+    };
+
+    const getLevelInfo = (score: number) => {
+        if (score < 50) return { label: 'Vulnerable 😟', color: 'text-red-500', barColor: 'bg-red-500' };
+        if (score < 80) return { label: 'Precavido 🤔', color: 'text-yellow-500', barColor: 'bg-yellow-500' };
+        return { label: 'Fortaleza Cripto 🛡️', color: 'text-green-500', barColor: 'bg-green-500' };
+    };
+
+    const levelInfo = getLevelInfo(score);
 
     const bgColor = isDark ? 'bg-gray-900' : 'bg-gray-50';
     const cardBg = isDark ? 'bg-gray-800' : 'bg-white';
@@ -76,92 +109,160 @@ const Security: React.FC = () => {
                     Protégete de estafas y mantén tus criptomonedas seguras
                 </p>
 
-                {/* Mejores Prácticas */}
+                {/* Contexto Venezuela */}
+                <div className={`${cardBg} p-6 rounded-xl border-l-4 border-yellow-500 shadow-lg mb-8`}>
+                    <h2 className="text-2xl font-bold mb-4 flex items-center text-yellow-600">
+                        <span className="mr-2">🇻🇪</span>
+                        Contexto Venezuela: Medidas Críticas
+                    </h2>
+                    <div className="space-y-4">
+                        <div className={`p-4 rounded-lg ${isDark ? 'bg-yellow-900/20' : 'bg-yellow-50'}`}>
+                            <h3 className="font-bold flex items-center mb-2 text-yellow-600">
+                                🏦 Seguridad Bancaria
+                            </h3>
+                            <p className={`${textSecondary} mb-2`}>
+                                Por normativas de la Sudeban, evita a toda costa usar términos relacionados con criptomonedas en tus transferencias bancarias.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 mt-2">
+                                <div className="flex-1 bg-red-100 dark:bg-red-900/30 p-3 rounded border border-red-200 dark:border-red-800">
+                                    <span className="text-red-600 dark:text-red-400 font-bold block text-sm mb-1">NUNCA PONGAS:</span>
+                                    <p className="text-sm text-red-700 dark:text-red-300">"USDT", "Binance", "Compra Cripto", "Gana dinero", "BTC"</p>
+                                </div>
+                                <div className="flex-1 bg-green-100 dark:bg-green-900/30 p-3 rounded border border-green-200 dark:border-green-800">
+                                    <span className="text-green-600 dark:text-green-400 font-bold block text-sm mb-1">USA EN SU LUGAR:</span>
+                                    <p className="text-sm text-green-700 dark:text-green-300">"Servicios", "Pago personal", "Asesoría", o déjalo en blanco.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700/30' : 'bg-gray-50'}`}>
+                                <h3 className="font-bold mb-2 flex items-center">
+                                    🔌 Infraestructura
+                                </h3>
+                                <p className={`${textSecondary} text-sm`}>
+                                    Los bajones de luz y fallas de internet son comunes. Si haces trading activo:
+                                </p>
+                                <ul className={`list-disc list-inside mt-2 text-sm ${textSecondary}`}>
+                                    <li>Ten siempre la app móvil instalada y logueada.</li>
+                                    <li>Mantén tu teléfono con carga y datos móviles.</li>
+                                    <li>Usa órdenes Limit o Stop-Loss, evita órdenes de Mercado si tu conexión es inestable.</li>
+                                </ul>
+                            </div>
+
+                            <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-700/30' : 'bg-gray-50'}`}>
+                                <h3 className="font-bold mb-2 flex items-center">
+                                    ⚠️ Triangulación P2P
+                                </h3>
+                                <p className={`${textSecondary} text-sm`}>
+                                    Una estafa común en P2P (Binance/El Dorado):
+                                </p>
+                                <ul className={`list-disc list-inside mt-2 text-sm ${textSecondary}`}>
+                                    <li>Un tercero te transfiere Bolívares.</li>
+                                    <li>El estafador te pide liberar los USDT.</li>
+                                    <li><span className="font-bold text-red-500">REGLA DE ORO:</span> Solo acepta pagos de cuentas bancarias que coincidan EXACTAMENTE con el nombre del usuario en la plataforma.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Score & Progress */}
+                <div className={`${cardBg} p-6 rounded-xl border ${borderColor} shadow-lg mb-8 sticky top-4 z-10 transition-all duration-300`}>
+                    <div className="flex justify-between items-end mb-2">
+                        <div>
+                            <h2 className="text-xl font-bold">Tu Nivel de Seguridad</h2>
+                            <p className={`text-sm ${textSecondary}`}>Completa el checklist para subir de nivel</p>
+                        </div>
+                        <div className="text-right">
+                            <span className={`text-2xl font-bold ${levelInfo.color}`}>{levelInfo.label}</span>
+                            <p className="text-sm font-bold">{score}% Seguro</p>
+                        </div>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-4 dark:bg-gray-700 overflow-hidden">
+                        <div
+                            className={`${levelInfo.barColor} h-4 rounded-full transition-all duration-1000 ease-out`}
+                            style={{ width: `${score}%` }}
+                        ></div>
+                    </div>
+                </div>
+
+                {/* Checklist de Seguridad */}
+                <div className={`${cardBg} p-6 rounded-xl border ${borderColor} shadow-lg mb-8`}>
+                    <h2 className="text-2xl font-bold mb-4">✅ Checklist Interactivo</h2>
+                    <div className="space-y-4">
+                        {securityChecklist.map((check, index) => (
+                            <motion.div
+                                key={check.id}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                onClick={() => handleCheck(check.id)}
+                                className={`p-4 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-opacity-80 
+                                    ${checkedState[check.id]
+                                        ? (isDark ? 'bg-green-900/20 border border-green-800' : 'bg-green-50 border border-green-200')
+                                        : (isDark ? 'bg-gray-700/50' : 'bg-gray-100')}
+                                    ${check.critical && !checkedState[check.id] ? 'border-l-4 border-l-red-500' : ''}
+                                `}
+                            >
+                                <div className="flex items-center">
+                                    <div className={`
+                                        flex-shrink-0 h-6 w-6 rounded border-2 flex items-center justify-center mr-3 transition-colors
+                                        ${checkedState[check.id]
+                                            ? 'bg-green-500 border-green-500'
+                                            : 'border-gray-400'}
+                                    `}>
+                                        {checkedState[check.id] && <CheckCircleIcon className="h-4 w-4 text-white" />}
+                                    </div>
+                                    <div className="select-none flex-1">
+                                        <label className={`cursor-pointer ${checkedState[check.id] ? 'line-through opacity-60' : ''} ${textColor}`}>
+                                            {check.item}
+                                        </label>
+                                        {check.critical && !checkedState[check.id] && (
+                                            <span className="ml-2 text-xs text-red-500 font-bold animate-pulse">CRÍTICO</span>
+                                        )}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                    {score === 100 && (
+                        <div className="mt-6 p-4 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200 rounded-lg text-center animate-bounce">
+                            🎉 ¡Excelente trabajo! Has tomado todas las precauciones recomendadas.
+                        </div>
+                    )}
+                </div>
+
+                {/* Mejores Prácticas (Compacto) */}
                 <div className={`${cardBg} p-6 rounded-xl border ${borderColor} shadow-lg mb-8`}>
                     <h2 className="text-2xl font-bold mb-4 flex items-center">
                         <ShieldCheckIcon className="h-7 w-7 mr-2 text-green-500" />
-                        Mejores Prácticas de Seguridad
+                        Tips Rápidos
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         {bestPractices.map((practice, index) => (
                             <div key={index} className="flex items-start">
-                                <CheckCircleIcon className="h-5 w-5 mr-2 text-green-500 flex-shrink-0 mt-0.5" />
+                                <CheckCircleIcon className="h-4 w-4 mr-2 text-green-500 flex-shrink-0 mt-0.5" />
                                 <span className={textSecondary}>{practice}</span>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Estafas Comunes */}
+                {/* Estafas (Acordeón o Grid compacto) */}
                 <div className="mb-8">
                     <h2 className="text-2xl font-bold mb-4 flex items-center">
                         <AlertTriangleIcon className="h-7 w-7 mr-2 text-red-500" />
-                        Estafas Comunes en Venezuela
+                        Archivo de Estafas
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {commonScams.map((scam, index) => (
-                            <div key={index} className={`${cardBg} p-6 rounded-xl border ${borderColor} shadow-lg`}>
-                                <h3 className="text-xl font-bold text-red-500 mb-2">⚠️ {scam.type}</h3>
-                                <p className={`${textSecondary} mb-3`}>{scam.description}</p>
-                                <div className={`${isDark ? 'bg-red-900/30' : 'bg-red-100'} border-l-4 border-red-500 p-3 rounded`}>
-                                    <p className={isDark ? 'text-red-200 text-sm' : 'text-red-800 text-sm'}>
-                                        🚨 {scam.warning}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Checklist de Seguridad */}
-                <div className={`${cardBg} p-6 rounded-xl border ${borderColor} shadow-lg`}>
-                    <h2 className="text-2xl font-bold mb-4">✅ Checklist de Seguridad Personal</h2>
-                    <p className={`${textSecondary} mb-6`}>
-                        Responde honestamente a estas preguntas para evaluar tu nivel de seguridad:
-                    </p>
-                    <div className="space-y-4">
-                        {securityChecklist.map((check, index) => (
-                            <div key={index} className={`p-4 rounded-lg ${isDark ? 'bg-gray-700/50' : 'bg-gray-100'} ${check.critical ? 'border-l-4 border-red-500' : ''}`}>
-                                <div className="flex items-start">
-                                    <input
-                                        type="checkbox"
-                                        id={`check-${index}`}
-                                        className="mt-1 h-5 w-5 rounded border-gray-300 text-[#f3ba2f] focus:ring-[#f3ba2f]"
-                                    />
-                                    <label htmlFor={`check-${index}`} className={`ml-3 ${textSecondary} cursor-pointer`}>
-                                        {check.item}
-                                        {check.critical && (
-                                            <span className="ml-2 text-xs text-red-500 font-bold">CRÍTICO</span>
-                                        )}
-                                    </label>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    <div className={`${isDark ? 'bg-blue-900/30' : 'bg-blue-100'} border-l-4 border-blue-500 p-4 rounded mt-6`}>
-                        <p className={isDark ? 'text-blue-200' : 'text-blue-800'}>
-                            💡 <strong>Tip:</strong> Todos los items marcados como CRÍTICOS deberían tener un "Sí". Si alguno no lo tiene, tómalo como prioridad para mejorar tu seguridad.
-                        </p>
-                    </div>
-                </div>
-
-                {/* Señales de Alerta */}
-                <div className={`${cardBg} p-6 rounded-xl border ${borderColor} shadow-lg mt-8`}>
-                    <h2 className="text-2xl font-bold mb-4">🚩 Señales de Alerta (Red Flags)</h2>
-                    <div className="space-y-3">
-                        {[
-                            'Te piden tu clave privada o seed phrase',
-                            'Prometen ganancias garantizadas o muy altas',
-                            'Presionan para que actúes rápido ("oferta limitada")',
-                            'La oferta llegó por mensaje no solicitado',
-                            'El sitio web tiene errores de ortografía',
-                            'No hay información clara sobre el equipo detrás del proyecto',
-                            'Te piden enviar cripto primero para "verificar tu cuenta"',
-                            'El dominio del sitio es similar pero no exacto al oficial',
-                        ].map((flag, index) => (
-                            <div key={index} className="flex items-start">
-                                <XCircleIcon className="h-5 w-5 mr-2 text-red-500 flex-shrink-0 mt-0.5" />
-                                <span className={textSecondary}>{flag}</span>
+                            <div key={index} className={`${cardBg} p-4 rounded-xl border ${borderColor} shadow hover:shadow-lg transition-shadow`}>
+                                <h3 className="font-bold text-red-500 mb-1">{scam.type}</h3>
+                                <p className={`${textSecondary} text-sm mb-2 line-clamp-2 hover:line-clamp-none`}>{scam.description}</p>
+                                <p className="text-xs text-red-600 dark:text-red-400 font-semibold">
+                                    🚨 {scam.warning}
+                                </p>
                             </div>
                         ))}
                     </div>

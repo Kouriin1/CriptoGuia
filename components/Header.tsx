@@ -2,6 +2,8 @@ import React from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import ThemeToggle from './ThemeToggle';
 import { LogoIcon } from './icons';
+import { motion } from 'framer-motion';
+import { Home, BookOpen, Calculator, ShieldCheck } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: string;
@@ -12,10 +14,10 @@ const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
   const { isDark } = useTheme();
 
   const tabs = [
-    { id: 'inicio', label: 'Inicio', icon: '🏠' },
-    { id: 'educacion', label: 'Educación', icon: '📚' },
-    { id: 'simulador', label: 'Simulador', icon: '🔢' },
-    { id: 'seguridad', label: 'Seguridad', icon: '🛡️' },
+    { id: 'inicio', label: 'Inicio', Icon: Home },
+    { id: 'educacion', label: 'Educación', Icon: BookOpen },
+    { id: 'simulador', label: 'Simulador', Icon: Calculator },
+    { id: 'seguridad', label: 'Seguridad', Icon: ShieldCheck },
   ];
 
   return (
@@ -39,23 +41,33 @@ const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
           </div>
 
           {/* Pestañas en el centro/derecha - Desktop */}
-          <nav className="hidden md:flex bg-gray-100 dark:bg-gray-800 p-1 rounded-full border border-gray-200 dark:border-gray-700">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => onTabChange(tab.id)}
-                className={`
-                  px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2
-                  ${activeTab === tab.id
-                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-md'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-700/50'
-                  }
-                `}
-              >
-                <span>{tab.icon}</span>
-                <span>{tab.label}</span>
-              </button>
-            ))}
+          <nav className="hidden md:flex bg-gray-100/50 dark:bg-gray-800/50 p-1.5 rounded-full border border-gray-200 dark:border-gray-700 backdrop-blur-sm">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange(tab.id)}
+                  className={`
+                      relative px-5 py-2 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-2 z-10
+                      ${isActive
+                      ? 'text-gray-900 dark:text-white'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                    }
+                    `}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="active-pill-header"
+                      className="absolute inset-0 bg-white dark:bg-gray-700 shadow-sm rounded-full -z-10"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                  <tab.Icon size={18} className="relative z-10" />
+                  <span className="relative z-10">{tab.label}</span>
+                </button>
+              );
+            })}
           </nav>
 
           {/* Toggle de tema a la derecha */}
@@ -65,25 +77,35 @@ const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
         </div>
       </div>
 
-      {/* Mobile Nav - Ahora dentro del flujo normal, no absolute */}
+      {/* Mobile Nav - Improved for full visibility */}
       <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
-        <div className="overflow-x-auto px-4 py-2 flex gap-2 no-scrollbar scroll-smooth">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => onTabChange(tab.id)}
-              className={`
-                flex-shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all border
-                ${activeTab === tab.id
-                  ? 'bg-[#f3ba2f] border-[#f3ba2f] text-gray-900'
-                  : 'bg-transparent border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400'
-                }
-              `}
-            >
-              <span className="mr-1">{tab.icon}</span>
-              {tab.label}
-            </button>
-          ))}
+        <div className="relative">
+          {/* Scroll container with proper padding */}
+          <div className="overflow-x-auto px-4 py-3 flex gap-3 no-scrollbar scroll-smooth" style={{ paddingRight: '2rem' }}>
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange(tab.id)}
+                  className={`
+                    flex-shrink-0 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center gap-2 shadow-sm
+                    ${isActive
+                      ? 'bg-gradient-to-r from-[#f3ba2f] to-[#e5a91f] text-gray-900 shadow-md'
+                      : isDark
+                        ? 'bg-gray-800 text-gray-300 border border-gray-700 hover:bg-gray-700'
+                        : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                    }
+                  `}
+                >
+                  <tab.Icon size={16} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+          {/* Fade edge indicator for scroll */}
+          <div className={`absolute right-0 top-0 bottom-0 w-8 pointer-events-none bg-gradient-to-l ${isDark ? 'from-gray-900' : 'from-white'} to-transparent`}></div>
         </div>
       </div>
     </header>

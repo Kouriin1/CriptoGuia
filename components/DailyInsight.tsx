@@ -1,75 +1,108 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
+import {
+    Trophy,
+    TrendingDown,
+    Users,
+    Building,
+    Brain,
+    Zap,
+    Smartphone,
+    DollarSign,
+    Droplet,
+    CircleDollarSign,
+    ShieldCheck,
+    LucideIcon
+} from 'lucide-react';
+
+interface InsightItem {
+    title: string;
+    content: string;
+    Icon: LucideIcon;
+    iconColor: string;
+    category: string;
+}
 
 /**
  * Colección de insights variados - NO solo educativos
  * Incluye: datos curiosos, estadísticas, contexto venezolano, tips prácticos
  */
-const insights = [
+const insights: InsightItem[] = [
     {
         title: "Venezuela es Top 10 en adopción cripto mundial",
         content: "Según Chainalysis, Venezuela está entre los 10 países con mayor adopción de criptomonedas en el mundo. La necesidad económica impulsó a millones a aprender sobre cripto.",
-        emoji: "🏆",
+        Icon: Trophy,
+        iconColor: "text-yellow-500",
         category: "Dato Curioso"
     },
     {
         title: "El bolívar ha perdido 99.99% de su valor",
         content: "Desde el 2013, el bolívar venezolano ha perdido prácticamente todo su valor frente al dólar. Por eso, guardar ahorros en Bs es como verlos desaparecer lentamente.",
-        emoji: "📉",
+        Icon: TrendingDown,
+        iconColor: "text-red-500",
         category: "Realidad VE"
     },
     {
         title: "Más de 10 millones de venezolanos usan cripto",
         content: "Se estima que al menos 1 de cada 3 venezolanos ha usado criptomonedas alguna vez, ya sea para ahorrar, recibir remesas o hacer pagos internacionales.",
-        emoji: "👥",
+        Icon: Users,
+        iconColor: "text-blue-500",
         category: "Estadística"
     },
     {
         title: "Binance tiene más usuarios en VE que muchos bancos",
         content: "Binance se convirtió en una especie de 'banco digital' para venezolanos, permitiendo ahorrar en dólares digitales sin necesidad de cuenta en el exterior.",
-        emoji: "🏦",
+        Icon: Building,
+        iconColor: "text-purple-500",
         category: "Dato Curioso"
     },
     {
         title: "Cultura financiera avanzada",
         content: "Debido a la dinámica económica, el venezolano promedio tiene un conocimiento sobre wallets, exchange y tasas de cambio muy superior al del ciudadano promedio europeo o norteamericano.",
-        emoji: "🧠",
+        Icon: Brain,
+        iconColor: "text-pink-500",
         category: "Dato Curioso"
     },
     {
         title: "Las remesas cripto llegan en minutos, no días",
         content: "Antes, enviar dinero de EEUU a Venezuela tomaba días y costaba $20-50. Ahora, tu familiar te envía USDT y en minutos lo tienes en tu billetera.",
-        emoji: "⚡",
+        Icon: Zap,
+        iconColor: "text-yellow-400",
         category: "Ventaja"
     },
     {
         title: "Zinli y Reserve: Alternativas locales",
         content: "Apps como Zinli y Reserve Dollar nacieron para resolver el problema venezolano: tener dólares digitales sin cuenta bancaria en el exterior.",
-        emoji: "📱",
+        Icon: Smartphone,
+        iconColor: "text-cyan-500",
         category: "Alternativas"
     },
     {
         title: "El 'dólar paralelo' refleja la economía real",
         content: "La tasa del BCV es oficial pero nadie la usa realmente. El precio que ves en Binance P2P es el que usan los comercios, las remesas y el día a día.",
-        emoji: "💵",
+        Icon: DollarSign,
+        iconColor: "text-green-500",
         category: "Realidad VE"
     },
     {
         title: "Venezuela fue pionera en Petro (aunque fracasó)",
         content: "En 2018, Venezuela lanzó el Petro, una 'criptomoneda estatal'. El proyecto fracasó, pero demostró que el gobierno conoce el poder de las criptos.",
-        emoji: "🛢️",
+        Icon: Droplet,
+        iconColor: "text-gray-500",
         category: "Historia"
     },
     {
         title: "USDT: El efectivo digital",
         content: "El USDT (Tether) se ha convertido en una herramienta cotidiana. Para muchos, funciona como una forma de 'dolarización digital' que permite transar sin necesidad de billetes físicos.",
-        emoji: "💵",
+        Icon: CircleDollarSign,
+        iconColor: "text-emerald-500",
         category: "Uso Diario"
     },
     {
         title: "Más allá de USDT: Descubre USDC",
         content: "USDC (Circle) es una stablecoin que te ofrece mayor variedad y seguridad al momento de proteger tus bolívares o realizar compras cripto.",
-        emoji: "🛡️",
+        Icon: ShieldCheck,
+        iconColor: "text-blue-600",
         category: "Uso Diario"
     }
 ];
@@ -166,7 +199,7 @@ const DailyInsight: React.FC = () => {
 
             {/* Decoración de fondo */}
             <div className="absolute top-0 right-0 w-32 h-32 opacity-5 pointer-events-none">
-                <span className="text-[120px]">{insight.emoji}</span>
+                <insight.Icon size={120} />
             </div>
 
             {/* Header con categoría y navegación */}
@@ -221,9 +254,11 @@ const DailyInsight: React.FC = () => {
                 ref={containerRef}
                 className={getSlideClasses()}
             >
-                {/* Emoji grande + Título */}
+                {/* Icono grande + Título */}
                 <div className="flex items-start gap-4 mb-4">
-                    <span className="text-4xl sm:text-5xl flex-shrink-0">{insight.emoji}</span>
+                    <div className={`p-3 rounded-2xl ${isDark ? 'bg-gray-700/50' : 'bg-gray-100'} flex-shrink-0`}>
+                        <insight.Icon size={40} className={insight.iconColor} />
+                    </div>
                     <h2 className={`text-xl sm:text-2xl font-bold leading-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
                         {insight.title}
                     </h2>

@@ -89,9 +89,9 @@ const AIChat: React.FC = () => {
   }, [messageCount]);
 
   // Auto-scroll al último mensaje
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  //  useEffect(() => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  //  }, [messages]);
 
   const handleClearChat = () => {
     setMessages([getWelcomeMessage()]);
@@ -170,10 +170,10 @@ const AIChat: React.FC = () => {
         <div className="flex items-center gap-2">
           {/* Contador de mensajes restantes */}
           <span className={`text-xs font-medium px-2 py-1 rounded-full ${hasReachedLimit
-              ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
-              : remainingMessages <= 3
-                ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'
-                : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
+            ? 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400'
+            : remainingMessages <= 3
+              ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'
+              : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400'
             }`}>
             {remainingMessages} restantes
           </span>

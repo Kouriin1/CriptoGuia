@@ -639,32 +639,35 @@ const Education: React.FC = () => {
                     )}
                 </div>
 
-                {/* Selector de sección */}
-                <div className="flex justify-center mb-16">
-                    <div className={`inline-flex p-1.5 rounded-full ${isDark ? 'bg-gray-800/80' : 'bg-white shadow-sm'} border ${isDark ? 'border-gray-700' : 'border-gray-200'}`}>
-                        <button
-                            onClick={() => { setActiveSection('glosario'); setShowQuiz(null); }}
-                            className={`px-8 py-3 rounded-full font-bold text-sm sm:text-base transition-all duration-300 flex items-center gap-2 ${activeSection === 'glosario' ? pillClassActive : pillClassInactive}`}
-                        >
-                            <BookOpenIcon className="h-5 w-5" />
-                            Glosario
-                            {completedSections.includes('glosario') && <span className="text-green-500">✓</span>}
-                        </button>
-                        <button
-                            onClick={() => { setActiveSection('guias'); setShowQuiz(null); }}
-                            className={`px-8 py-3 rounded-full font-bold text-sm sm:text-base transition-all duration-300 flex items-center gap-2 ${activeSection === 'guias' ? pillClassActive : pillClassInactive}`}
-                        >
-                            <LightBulbIcon className="h-5 w-5" />
-                            Guías
-                            {completedSections.includes('guias') && <span className="text-green-500">✓</span>}
-                        </button>
-                        <button
-                            onClick={() => { setActiveSection('casos'); setShowQuiz(null); }}
-                            className={`px-8 py-3 rounded-full font-bold text-sm sm:text-base transition-all duration-300 flex items-center gap-2 ${activeSection === 'casos' ? pillClassActive : pillClassInactive}`}
-                        >
-                            <MapIcon className="h-5 w-5" />
-                            Casos de Uso
-                        </button>
+                {/* Selector de sección - Mobile optimized */}
+                <div className="flex justify-center mb-10 sm:mb-16 px-2">
+                    <div className={`w-full sm:w-auto overflow-x-auto no-scrollbar`}>
+                        <div className={`inline-flex p-1 sm:p-1.5 rounded-xl sm:rounded-full ${isDark ? 'bg-gray-800/80' : 'bg-white shadow-sm'} border ${isDark ? 'border-gray-700' : 'border-gray-200'} min-w-max`}>
+                            <button
+                                onClick={() => { setActiveSection('glosario'); setShowQuiz(null); }}
+                                className={`px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg sm:rounded-full font-bold text-xs sm:text-base transition-all duration-300 flex items-center gap-1.5 sm:gap-2 ${activeSection === 'glosario' ? pillClassActive : pillClassInactive}`}
+                            >
+                                <BookOpenIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                                <span>Glosario</span>
+                                {completedSections.includes('glosario') && <span className="text-green-500">✓</span>}
+                            </button>
+                            <button
+                                onClick={() => { setActiveSection('guias'); setShowQuiz(null); }}
+                                className={`px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg sm:rounded-full font-bold text-xs sm:text-base transition-all duration-300 flex items-center gap-1.5 sm:gap-2 ${activeSection === 'guias' ? pillClassActive : pillClassInactive}`}
+                            >
+                                <LightBulbIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                                <span>Guías</span>
+                                {completedSections.includes('guias') && <span className="text-green-500">✓</span>}
+                            </button>
+                            <button
+                                onClick={() => { setActiveSection('casos'); setShowQuiz(null); }}
+                                className={`px-4 sm:px-8 py-2.5 sm:py-3 rounded-lg sm:rounded-full font-bold text-xs sm:text-base transition-all duration-300 flex items-center gap-1.5 sm:gap-2 ${activeSection === 'casos' ? pillClassActive : pillClassInactive}`}
+                            >
+                                <MapIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                                <span className="hidden sm:inline">Casos de Uso</span>
+                                <span className="sm:hidden">Casos</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 

@@ -10,7 +10,7 @@ import Education from './components/Education';
 import Simulator from './components/Simulator';
 import Security from './components/Security';
 import DollarAnalysis from './components/DollarAnalysis';
-
+import EuroExchangeRateCard from './components/EuroExchangeRateCard';
 // Vista de Inicio (home) con los componentes actuales
 const HomeView: React.FC = () => {
   const { isDark } = useTheme();
@@ -20,7 +20,7 @@ const HomeView: React.FC = () => {
       <div className="grid grid-cols-1 gap-6 lg:gap-8">
         {/* Tasa principal - ancho completo */}
         <ExchangeRateCard />
-
+        <EuroExchangeRateCard />
         {/* Insight del día - ancho completo, contenido educativo */}
         <DailyInsight />
 

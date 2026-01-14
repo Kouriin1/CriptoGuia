@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as cheerio from 'cheerio';
-import https from 'https'; // 1. Importamos el módulo nativo https
+import https from 'https';
 
 // ============================================
 // CACHE - Variables persistentes
@@ -32,33 +32,33 @@ export default async function handler() {
     }
 
     try {
-        // 2. Petición HTTP con agente para ignorar errores de certificado
+        // 2. Petición HTTP (con el bypass de SSL para el BCV)
         const response = await axios.get('https://www.bcv.org.ve/', {
-            // ESTA ES LA PIEZA CLAVE:
-            httpsAgent: new https.Agent({  
-                rejectUnauthorized: false // Ignora la verificación del certificado SSL
+            httpsAgent: new https.Agent({ 
+                rejectUnauthorized: false 
             }),
             headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
             },
-            timeout: 15000 // Aumentamos a 15 segundos por si el sitio está lento
+            timeout: 15000
         });
 
         // 3. Parsing con Cheerio
         const $ = cheerio.load(response.data);
         
-        // Seleccionamos el valor dentro del div con id "euro"
-        const valorTexto = $('#euro strong').text().trim();
+        // Selector específico para el Dólar según el HTML que enviaste
+        const valorTexto = $('#dolar strong').text().trim();
 
         if (!valorTexto) {
-            throw new Error('No se pudo encontrar el selector del Euro en el HTML del BCV');
+            throw new Error('No se pudo encontrar el valor del Dólar en el BCV');
         }
 
         const result: BCVData = {
             success: true,
-            moneda: 'EUR',
-            valor: valorTexto.replace(',', '.'),
+            moneda: 'USD',
+            // Convertimos la coma en punto para que sea un número válido en JS
+            valor: valorTexto.replace(',', '.'), 
             timestamp: new Date().toISOString(),
             fromCache: false
         };
@@ -73,7 +73,7 @@ export default async function handler() {
         });
 
     } catch (error: any) {
-        console.error('Error obteniendo tasa BCV:', error.message);
+        console.error('Error obteniendo tasa BCV USD:', error.message);
         
         return new Response(
             JSON.stringify({

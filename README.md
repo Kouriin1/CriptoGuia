@@ -12,10 +12,14 @@ La aplicación combina recursos educativos profundos con herramientas de simulac
 
 ### 1. 🏠 Panel Principal (Dashboard)
 Una vista general del mercado con información relevante al instante:
-- **Tasas de Cambio en Tiempo Real:** Precio del dólar paralelo obtenido de Binance P2P.
-- **Perspectivas de Mercado:** Análisis de tendencias actuales.
+- **Análisis Dual del Dólar:** 
+  - **Vista Tendencia:** Histórico y comportamiento del paralelo (alcista/bajista).
+  - **Vista Brecha:** Comparativa en tiempo real entre Paralelo vs. BCV, con indicador de "Brecha Cambiaria" y alertas de distorsión de mercado.
+- **Tasas de Cambio:** Dólar Paralelo (Binance P2P), Dólar BCV y Euro BCV.
+- **Perspectivas de Mercado:** Análisis de tendencias y sentimiento global.
+- **Insight Diario:** Consejos educativos y noticias relevantes cada día.
 - **Distribución de Activos:** Gráficos visuales para entender la diversificación.
-- **Chat IA:** Un asistente inteligente integrado para responder dudas rápidas sobre cripto.
+- **Chat IA:** Asistente inteligente integrado (Groq/LLaMA 3).
 
 ### 2. 📚 Centro Educativo (Core del Proyecto)
 El corazón de la aplicación, diseñado para llevar al usuario de principiante a experto:
@@ -23,8 +27,11 @@ El corazón de la aplicación, diseñado para llevar al usuario de principiante 
 - **Guías Paso a Paso:** Tutoriales detallados para operaciones esenciales.
 - **Casos de Uso:** Ejemplos prácticos de cómo las criptomonedas resuelven problemas diarios.
 
-### 3. 🔢 Simulador de Conversión
-Herramienta calculadora que permite estimar conversiones entre Bolívares (VES) y Criptomonedas (USDT, BTC, ETH) en tiempo real.
+### 3. 🔢 Simulador de Conversión (Rediseñado)
+Herramienta calculadora optimizada que permite estimar conversiones con precisión:
+- **Selector Unificado:** Cambia fácilmente entre Bolívares (Paralelo), USDT, Dólar BCV y Euro BCV.
+- **Cálculos Precisos:** Utiliza las tasas reales (Binance para el paralelo, BCV oficial para tasas gubernamentales).
+- **Interfaz Limpia:** Diseño moderno con iconos intuitivos para una mejor experiencia de usuario.
 
 ### 4. 🛡️ Centro de Seguridad
 Sección dedicada a la prevención de estafas y buenas prácticas.
@@ -39,6 +46,9 @@ Sección dedicada a la prevención de estafas y buenas prácticas.
 | **Vite** | Build tool y dev server |
 | **Tailwind CSS** | Estilos |
 | **Netlify Functions** | Backend serverless |
+| **Cheerio** | Web Scraping (BCV) |
+| **Recharts** | Gráficos de datos |
+| **Framer Motion** | Animaciones |
 | **Binance P2P API** | Tasa del dólar paralelo |
 | **Groq API** | Chat inteligente (LLaMA 3.3 70B) |
 
@@ -50,26 +60,58 @@ Sección dedicada a la prevención de estafas y buenas prácticas.
 CriptoGuiaVE/
 ├── components/               # Componentes de React
 │   ├── AIChat.tsx            # Asistente virtual IA
+│   ├── AssetDistribution.tsx # Distribución de activos (Gráficos)
+│   ├── DailyInsight.tsx      # Información diaria relevante
+│   ├── DollarAnalysis.tsx    # Análisis del Dólar (Tendencia + Brecha)
+│   ├── DolarExchangeRateCard.tsx # Tarjeta tasa Dólar
+│   ├── EuroExchangeRateCard.tsx  # Tarjeta tasa Euro
 │   ├── Education.tsx         # Módulo educativo
-│   ├── ExchangeRateCard.tsx  # Tarjeta de tasa USD/VES
-│   ├── GlobalMarket.tsx      # Precios de criptomonedas
+│   ├── ExchangeRateCard.tsx  # Componente base de tasa
+│   ├── GlobalMarket.tsx      # Precios mercado global
+│   ├── Header.tsx            # Cabecera de la app
+│   ├── MarketPerspectives.tsx# Perspectivas del mercado
+│   ├── Navigation.tsx        # Navegación principal
+│   ├── PageTransition.tsx    # Animaciones de página
+│   ├── Security.tsx          # Centro de seguridad
 │   ├── Simulator.tsx         # Calculadora de conversión
-│   ├── Security.tsx          # Sección de seguridad
+│   ├── ThemeToggle.tsx       # Switch claro/oscuro
 │   └── icons.tsx             # Iconos SVG
 ├── contexts/
-│   └── ThemeContext.tsx      # Tema claro/oscuro
+│   └── ThemeContext.tsx      # Manejo del tema (Claro/Oscuro)
 ├── netlify/
 │   └── functions/
-│       └── binance-rate.ts   # ⭐ Función serverless Binance P2P
+│       ├── binance-rate.ts   # API Proxy: Binance P2P
+│       ├── crypto-prices.ts  # API Proxy: Precios Cripto
+│       ├── dolar-rate.ts     # Scraper: Tasa Dólar BCV
+│       └── euro-rate.ts      # Scraper: Tasa Euro BCV
 ├── services/
-│   ├── IAService.ts          # ⭐ Integración con Groq AI
-│   ├── cryptoService.ts      # API de CoinGecko (precios)
-│   └── binanceService.ts     # Cliente para la API de Binance
-├── App.tsx                   # Componente raíz
-├── vite-env.d.ts             # Tipos de Vite (import.meta.env)
-├── netlify.toml              # Configuración de Netlify
-└── vite.config.ts            # Configuración de Vite
+│   ├── IAService.ts          # Servicio Groq AI
+│   ├── binanceService.ts     # Servicio Cliente Binance
+│   ├── cryptoService.ts      # Servicio CoinGecko
+│   └── rateHistoryService.ts # Historial de tasas
+├── App.tsx                   # Componente Principal
+├── index.html                # Punto de entrada HTML
+├── tailwind.config.js        # Configuración Tailwind
+└── vite.config.ts            # Configuración Vite
 ```
+
+---
+
+## 🕷️ Integración Web Scraping (BCV)
+
+### Arquitectura BCV
+
+```
+┌──────────────┐     ┌─────────────────────┐     ┌──────────────────────┐
+│   Frontend   │────▶│  Netlify Function   │────▶│  Web BCV (bcv.org.ve)│
+│              │     │  /dolar-rate        │     │  (HTML Scraping)     │
+└──────────────┘     └─────────────────────┘     └──────────────────────┘
+```
+
+1. **Netlify Functions:** `dolar-rate.ts` y `euro-rate.ts` actúan como backend.
+2. **Bypass SSL:** Se configura un agente HTTPS (`rejectUnauthorized: false`) para saltar errores de certificado del sitio del BCV.
+3. **Cheerio:** Parsea el HTML y extrae los valores usando selectores (`#dolar strong`, `#euro strong`).
+4. **Cache:** Implementa caché de 10 minutos para evitar saturar al BCV y mejorar velocidad.
 
 ---
 
@@ -100,7 +142,7 @@ npm install -g netlify-cli
 # ⭐ RECOMENDADO: Frontend + Netlify Functions
 npm run dev:full
 
-# Solo frontend (sin functions de Binance)
+# Solo frontend (sin functions de Binance/BCV)
 npm run dev
 ```
 
@@ -305,20 +347,11 @@ npm run dev:full
 
 ## 🔮 Roadmap
 
-- [x] Tasa del dólar paralelo en tiempo real (Binance P2P)
-- [ ] Tasa oficial BCV (web scraping)
-- [ ] Autenticación de usuarios
-- [ ] Historial de tasas con gráficos
-- [ ] PWA (modo offline)
-
----
-
-## 📄 Licencia
-
-**© 2026 CriptoGuíaVE.** Todos los derechos reservados.
-
-Este proyecto es de uso educativo e informativo.
-
----
-
-*Desarrollado por Roger Montero 😊*
+- [x] Integración de tasas en tiempo real (Binance P2P)
+- [x] Chat con Inteligencia Artificial (Groq)
+- [x] Modo Oscuro / Claro
+- [x] Tasa oficial BCV (web scraping)
+- [x] Simulador de conversión avanzado (Paralelo y BCV)
+- [x] Análisis de Brecha Cambiaria
+- [ ] Versión PWA (App instalable)
+- [ ] Notificaciones de precios (Telegram/Email)

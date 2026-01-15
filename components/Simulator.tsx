@@ -113,15 +113,22 @@ const Simulator: React.FC = () => {
                 </div>
 
                 <div className={`${isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'} p-8 rounded-3xl shadow-xl border mb-12`}>
+
+                    {/* -- RESPONSIVE TABS (GRID LAYOUT) -- */}
                     <div className="flex justify-center mb-8">
-                        <div className="inline-flex items-center bg-gray-100 dark:bg-gray-900/50 rounded-full p-1.5 border border-gray-200 dark:border-gray-700">
-                            <button onClick={() => setMode('ves-to-crypto')} className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all ${mode === 'ves-to-crypto' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}>Bs.S → Cripto</button>
-                            <div className="px-2 text-gray-300"><ArrowLeftRightIcon className="h-4 w-4" /></div>
-                            <button onClick={() => setMode('crypto-to-ves')} className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all ${mode === 'crypto-to-ves' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}>USDT → Bs.S</button>
-                            <div className="px-2 text-gray-300"><ArrowLeftRightIcon className="h-4 w-4" /></div>
-                            <button onClick={() => setMode('bcv-eur')} className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all ${mode === 'bcv-eur' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}>EUR → BCV</button>
-                            <div className="px-2 text-gray-300"><ArrowLeftRightIcon className="h-4 w-4" /></div>
-                            <button onClick={() => setMode('bcv-usd')} className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all ${mode === 'bcv-usd' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}>USD → BCV</button>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-gray-100 dark:bg-gray-900/50 p-1.5 rounded-2xl border border-gray-200 dark:border-gray-700 w-full max-w-2xl">
+                            <button onClick={() => setMode('ves-to-crypto')} className={`px-2 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all w-full text-center ${mode === 'ves-to-crypto' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'}`}>
+                                Bs.S → Cripto
+                            </button>
+                            <button onClick={() => setMode('crypto-to-ves')} className={`px-2 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all w-full text-center ${mode === 'crypto-to-ves' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'}`}>
+                                USDT → Bs.S
+                            </button>
+                            <button onClick={() => setMode('bcv-eur')} className={`px-2 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all w-full text-center ${mode === 'bcv-eur' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'}`}>
+                                EUR → BCV
+                            </button>
+                            <button onClick={() => setMode('bcv-usd')} className={`px-2 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all w-full text-center ${mode === 'bcv-usd' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'}`}>
+                                USD → BCV
+                            </button>
                         </div>
                     </div>
 

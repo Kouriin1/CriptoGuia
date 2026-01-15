@@ -332,7 +332,7 @@ const Education: React.FC = () => {
         {
             term: 'Clave Privada (Private Key)',
             definition: 'Código secreto alfanumérico que otorga control total sobre los fondos de una dirección de billetera. Quien tenga esta clave, es dueño del dinero.',
-            examples: 'Una cadena larga de caracteres que nunca debes mostrar. Es lo que genera tu Seed Phrase.',
+            examples: 'Suelen verse asi "E9873D79C6D87DC0FB6" y funciona de la misma manera que una contraseña bancaria o la clave de una caja fuerte.',
             image: null
         },
         {

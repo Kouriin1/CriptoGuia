@@ -4,14 +4,19 @@ import { ArrowUpIcon, ArrowDownIcon, RefreshIcon } from './icons';
 import { getBinanceRate } from '../services/binanceService';
 import { getHistory, saveRate, RateEntry } from '../services/rateHistoryService';
 
-const ExchangeRateCard: React.FC = () => {
+// 1. Definimos la interfaz para la prop de cambio
+interface ExchangeRateProps {
+  onSwitch: () => void;
+}
+
+const ExchangeRateCard: React.FC<ExchangeRateProps> = ({ onSwitch }) => {
   const { isDark } = useTheme();
   const [rate, setRate] = useState<number | null>(null);
   const [yesterdayRate, setYesterdayRate] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-
+  
   const fetchRate = useCallback(async () => {
     try {
       setLoading(true);
@@ -71,9 +76,19 @@ const ExchangeRateCard: React.FC = () => {
       <div className="relative z-10">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h2 className="font-bold uppercase tracking-wider text-sm text-gray-500 dark:text-gray-400">
-              Dólar Paralelo
-            </h2>
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="font-bold uppercase tracking-wider text-sm text-gray-500 dark:text-gray-400">
+                Dólar Paralelo
+              </h2>
+              {/* BOTÓN PARA CAMBIAR A EURO */}
+              <button 
+                onClick={onSwitch}
+                className="p-1.5 rounded-xl bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 hover:rotate-180 transition-transform duration-500 shadow-sm"
+                title="Cambiar a Euro"
+              >
+                <RefreshIcon className="h-4 w-4" />
+              </button>
+            </div>
             <p className="text-xs text-gray-400 dark:text-gray-500">USDT/VES • Binance P2P</p>
           </div>
           <div className="flex items-center gap-2">

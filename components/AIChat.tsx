@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { SendIcon, BotIcon } from './icons';
 import { sendMessageToAI } from '../services/IAService';
+import { getBinanceRate } from '../services/binanceService';
 
 interface Message {
   id: string;
@@ -95,6 +96,47 @@ const AIChat: React.FC = () => {
     }
   }, [messages]);
 
+  // Obtener tasas para contexto de IA
+  const [rates, setRates] = useState<{ binanceRate?: number; bcvRate?: number; euroRate?: number }>({});
+
+  useEffect(() => {
+      const fetchRates = async () => {
+          try {
+              const binanceData = await getBinanceRate();
+              let bcvVal;
+              try {
+                  const resUsd = await fetch('/.netlify/functions/dolar-rate');
+                  const dataUsd = await resUsd.json();
+                  if (dataUsd.success && dataUsd.valor) {
+                      bcvVal = parseFloat(dataUsd.valor);
+                  }
+              } catch (e) {
+                  // Fallo silencioso en BCV
+              }
+
+              let euroVal;
+              try {
+                  const resEuro = await fetch('/.netlify/functions/euro-rate');
+                  const dataEuro = await resEuro.json();
+                  if (dataEuro.success && dataEuro.valor) {
+                      euroVal = parseFloat(dataEuro.valor);
+                  }
+              } catch (e) {
+                  // Fallo silencioso en Euro
+              }
+              
+              setRates({
+                  binanceRate: binanceData.rate,
+                  bcvRate: bcvVal,
+                  euroRate: euroVal
+              });
+          } catch (e) {
+              console.warn("Could not fetch rates for AI context");
+          }
+      };
+      fetchRates();
+  }, []);
+
   const handleClearChat = () => {
     setMessages([getWelcomeMessage()]);
   };
@@ -125,7 +167,7 @@ const AIChat: React.FC = () => {
           text: m.text
         }));
 
-      const responseText = await sendMessageToAI(inputText, chatHistory);
+      const responseText = await sendMessageToAI(inputText, chatHistory, rates);
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: responseText,

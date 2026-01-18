@@ -177,6 +177,18 @@ export function analyzeTrend(currentRate: number): TrendAnalysis {
             trend = 'ESTABLE';
             consecutiveDays = 0;
         }
+
+        // CORRECCIÓN VISUAL: Si la tendencia calculada contradice el movimiento actual,
+        // forzar a ESTABLE. Esto evita confusión (ej: ver números verdes pero texto "BAJISTA").
+        // Especialmente útil cuando el mercado se está estabilizando tras volatilidad.
+        if (trend === 'BAJISTA' && todayChangePercent > 0.05) {
+            trend = 'ESTABLE';
+            consecutiveDays = 0;
+        }
+        if (trend === 'ALCISTA' && todayChangePercent < -0.05) {
+            trend = 'ESTABLE';
+            consecutiveDays = 0;
+        }
     }
 
     // Generar consejo basado en la tendencia

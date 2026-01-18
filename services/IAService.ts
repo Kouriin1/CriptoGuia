@@ -8,27 +8,23 @@ if (!GROQ_API_KEY) {
 const systemInstruction = `
 Eres el asistente oficial de CriptoGuíaVE, una plataforma educativa sobre criptomonedas enfocada en Venezuela.
 
-TU ÚNICA FUNCIÓN es responder preguntas EXCLUSIVAMENTE sobre:
+TU ÚNICA FUNCIÓN es responder preguntas sobre:
 - Criptomonedas (Bitcoin, Ethereum, USDT, etc.)
 - Wallets y exchanges (Binance, Trust Wallet, MetaMask, etc.)
 - Cómo comprar/vender cripto en Venezuela (P2P, Binance P2P, LocalBitcoins)
+- Tasas de cambio (Dólar Paralelo, BCV, Euro) y su relación con USDT
 - Seguridad y prevención de estafas en cripto
-- Tasas de cambio y remesas con cripto
-- Términos y conceptos del mundo cripto
 - Regulaciones y situación de cripto en Venezuela
 
+INFORMACIÓN EN TIEMPO REAL:
+{{CONTEXT_DATA}}
+
 REGLAS ESTRICTAS:
-1. Si te preguntan algo que NO esté relacionado con criptomonedas, finanzas digitales o el ecosistema cripto, DEBES rechazar amablemente con: "Lo siento, solo puedo ayudarte con temas relacionados a criptomonedas. ¿Tienes alguna pregunta sobre Bitcoin, wallets, exchanges o cómo usar cripto en Venezuela?"
-
-2. NO respondas sobre: política, deportes, entretenimiento, recetas, programación general, relaciones personales, medicina, o cualquier tema no relacionado a cripto.
-
+1. Si te preguntan algo fuera de estos temas (deportes, recetas, etc.), rechaza amablemente.
+2. Si te preguntan por el precio del dólar, USA LA INFORMACIÓN PROPORCIONADA ARRIBA.
 3. Mantén respuestas CONCISAS (máximo 3-4 oraciones) y en español.
-
-4. NO uses formato markdown, solo texto plano.
-
-5. Siempre considera el contexto venezolano (bolívares, dólar paralelo, situación económica).
-
-6. Sé amigable pero profesional. Usa "tú" en lugar de "usted".
+4. NO uses formato markdown (negritas, cursivas), solo texto plano.
+5. Sé amigable pero profesional.
 `;
 
 interface ChatMessage {
@@ -38,16 +34,33 @@ interface ChatMessage {
 
 export async function sendMessageToAI(
   message: string,
-  chatHistory: Array<{ role: 'user' | 'model', text: string }> = []
+  chatHistory: Array<{ role: 'user' | 'model', text: string }> = [],
+  appContext?: {
+      binanceRate?: number;
+      bcvRate?: number;
+      euroRate?: number;
+  }
 ): Promise<string> {
   if (!GROQ_API_KEY) {
     return "El servicio de IA no está disponible. Por favor verifica que la API key esté configurada correctamente.";
   }
 
   try {
-    // Construir el array de mensajes para Groq (formato OpenAI compatible)
+    // Preparar datos de contexto
+    let contextString = "No hay datos de tasas disponibles en este momento.";
+    if (appContext) {
+        const binanceText = appContext.binanceRate ? `Tasa Dólar Paralelo (USDT): ${appContext.binanceRate.toFixed(2)} Bs` : "";
+        const bcvText = appContext.bcvRate ? `Tasa BCV: ${appContext.bcvRate.toFixed(2)} Bs` : "";
+        const euroText = appContext.euroRate ? `Tasa Euro Oficial: ${appContext.euroRate.toFixed(2)} Bs` : "";
+        contextString = [binanceText, bcvText, euroText].filter(Boolean).join("\n");
+    }
+
+    // Inyectar contexto en el prompt
+    const finalSystemPrompt = systemInstruction.replace('{{CONTEXT_DATA}}', contextString);
+
+    // Construir el array de mensajes para Groq
     const messages: ChatMessage[] = [
-      { role: 'system', content: systemInstruction },
+      { role: 'system', content: finalSystemPrompt },
       ...chatHistory.map(msg => ({
         role: (msg.role === 'user' ? 'user' : 'assistant') as 'user' | 'assistant',
         content: msg.text

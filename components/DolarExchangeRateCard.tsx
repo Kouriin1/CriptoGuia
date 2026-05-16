@@ -21,8 +21,8 @@ const DolarExchangeRateCard: React.FC<DolarProps> = ({ onSwitch }) => {
   const fetchRate = useCallback(async () => {
     try {
       setLoading(true);
-      // Apuntamos a la función de Netlify para el dólar BCV
-      const response = await fetch('/.netlify/functions/dolar-rate');
+      // Endpoint del Worker para la tasa BCV (USD)
+      const response = await fetch('/api/dolar-rate');
       
       if (!response.ok) throw new Error('Error al conectar con la función');
       

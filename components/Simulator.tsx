@@ -27,7 +27,7 @@ const Simulator: React.FC = () => {
             setLastUpdate(new Date(binanceData.timestamp));
 
             try {
-                const resEur = await fetch('/.netlify/functions/euro-rate');
+                const resEur = await fetch('/api/euro-rate');
                 const dataEur = await resEur.json();
                 if (dataEur.success && dataEur.valor) {
                     setBcvEurRate(parseFloat(dataEur.valor));
@@ -35,7 +35,7 @@ const Simulator: React.FC = () => {
             } catch (e) { console.warn('Error euro-rate'); }
 
             try {
-                const resUsd = await fetch('/.netlify/functions/dolar-rate');
+                const resUsd = await fetch('/api/dolar-rate');
                 const dataUsd = await resUsd.json();
                 if (dataUsd.success && dataUsd.valor) {
                     setBcvUsdRate(parseFloat(dataUsd.valor));

@@ -45,8 +45,9 @@ Sección dedicada a la prevención de estafas y buenas prácticas.
 | **React** + **TypeScript** | Frontend |
 | **Vite** | Build tool y dev server |
 | **Tailwind CSS** | Estilos |
-| **Netlify Functions** | Backend serverless |
-| **Cheerio** | Web Scraping (BCV) |
+| **Cloudflare Workers** | Backend serverless (single Worker, rutas `/api/*`) |
+| **Cloudflare Pages (Assets)** | Hosting estatico de la SPA via binding `ASSETS` |
+| **Cheerio** | Web Scraping (BCV) con fallback a `ve.dolarapi.com` |
 | **Recharts** | Gráficos de datos |
 | **Framer Motion** | Animaciones |
 | **Binance P2P API** | Tasa del dólar paralelo |
@@ -78,12 +79,12 @@ CriptoGuiaVE/
 │   └── icons.tsx             # Iconos SVG
 ├── contexts/
 │   └── ThemeContext.tsx      # Manejo del tema (Claro/Oscuro)
-├── netlify/
-│   └── functions/
-│       ├── binance-rate.ts   # API Proxy: Binance P2P
-│       ├── crypto-prices.ts  # API Proxy: Precios Cripto
-│       ├── dolar-rate.ts     # Scraper: Tasa Dólar BCV
-│       └── euro-rate.ts      # Scraper: Tasa Euro BCV
+├── worker/
+│   └── index.ts              # Cloudflare Worker (rutas /api/* + serve SPA)
+│       # GET /api/binance-rate   → Proxy Binance P2P
+│       # GET /api/crypto-prices  → Proxy CoinGecko
+│       # GET /api/dolar-rate     → Scraping BCV USD (+ fallback dolarapi)
+│       # GET /api/euro-rate      → Scraping BCV EUR (+ fallback dolarapi)
 ├── services/
 │   ├── IAService.ts          # Servicio Groq AI
 │   ├── binanceService.ts     # Servicio Cliente Binance
@@ -102,53 +103,76 @@ CriptoGuiaVE/
 ### Arquitectura BCV
 
 ```
-┌──────────────┐     ┌─────────────────────┐     ┌──────────────────────┐
-│   Frontend   │────▶│  Netlify Function   │────▶│  Web BCV (bcv.org.ve)│
-│              │     │  /dolar-rate        │     │  (HTML Scraping)     │
-└──────────────┘     └─────────────────────┘     └──────────────────────┘
+┌──────────────┐     ┌──────────────────────┐     ┌──────────────────────┐
+│   Frontend   │────▶│  Cloudflare Worker   │────▶│  Web BCV (bcv.org.ve)│
+│              │     │  /api/dolar-rate     │     │  (HTML Scraping)     │
+└──────────────┘     └──────────────────────┘     └──────────────────────┘
+                              │
+                              │ si falla scraping (SSL, timeout, etc.)
+                              ▼
+                     ┌──────────────────────┐
+                     │  ve.dolarapi.com     │  (fallback automatico)
+                     └──────────────────────┘
 ```
 
-1. **Netlify Functions:** `dolar-rate.ts` y `euro-rate.ts` actúan como backend.
-2. **Bypass SSL:** Se configura un agente HTTPS (`rejectUnauthorized: false`) para saltar errores de certificado del sitio del BCV.
-3. **Cheerio:** Parsea el HTML y extrae los valores usando selectores (`#dolar strong`, `#euro strong`).
-4. **Cache:** Implementa caché de 10 minutos para evitar saturar al BCV y mejorar velocidad.
+1. **Cloudflare Worker:** Un solo archivo `worker/index.ts` expone `/api/dolar-rate` y `/api/euro-rate`.
+2. **Cheerio:** Parsea el HTML del BCV con selectores `#dolar strong` y `#euro strong`.
+3. **Fallback:** Si el scraping falla (SSL, sitio caido, cambio de HTML), el Worker consulta automaticamente `ve.dolarapi.com` para no romper la UI.
+4. **Cache:** Cache en memoria del Worker (10 minutos) para evitar saturar al BCV. Se mantiene mientras el isolate del Worker este caliente.
 
 ---
 
 ## 🏁 Cómo Iniciar
 
 ### Requisitos previos
-- Node.js 18+
-- npm o yarn
-- Netlify CLI (para desarrollo con functions)
+- Node.js 20+ (recomendado, por compatibilidad con wrangler y workerd)
+- pnpm (`npm install -g pnpm`)
+- Cuenta de Cloudflare (solo para desplegar; en local no hace falta)
 
 ### Instalación
 
 ```bash
 # 1. Clonar el repositorio
-git clone https://github.com/tu-usuario/CriptoGuiaVE.git
-cd CriptoGuiaVE
+git clone https://github.com/Kouriin1/CriptoGuia.git
+cd CriptoGuia
 
-# 2. Instalar dependencias
-npm install
+# 2. Instalar dependencias con pnpm
+pnpm install
 
-# 3. Instalar Netlify CLI (si no lo tienes)
-npm install -g netlify-cli
+# 3. Crear archivo .env (solo si vas a usar el chat IA)
+cp env.example .env
+# Editar .env y pegar tu API key de Groq en VITE_API_KEY
 ```
 
 ### Desarrollo Local
 
 ```bash
-# ⭐ RECOMENDADO: Frontend + Netlify Functions
-npm run dev:full
-
-# Solo frontend (sin functions de Binance/BCV)
-npm run dev
+pnpm run dev
 ```
 
-La app estará disponible en:
-- **Con functions:** `http://localhost:8888`
-- **Solo frontend:** `http://localhost:3000`
+El @cloudflare/vite-plugin levanta en una sola URL:
+- El frontend (React + Vite)
+- El Worker (`worker/index.ts`) respondiendo en `/api/*`
+
+La app queda en `http://localhost:3000` y las rutas `/api/binance-rate`, `/api/dolar-rate`, `/api/euro-rate`, `/api/crypto-prices` funcionan en el mismo origen (sin CORS).
+
+### Build y Deploy
+
+```bash
+# Solo build (genera dist/ con assets y bundle del worker)
+pnpm run build
+
+# Build + Preview local con wrangler (simula el entorno de Cloudflare)
+pnpm run preview
+
+# Build + Deploy a Cloudflare
+pnpm run deploy
+```
+
+Antes de `pnpm run deploy` por primera vez:
+```bash
+pnpm exec wrangler login
+```
 
 ---
 
@@ -157,20 +181,20 @@ La app estará disponible en:
 ### Arquitectura
 
 ```
-┌──────────────┐     ┌─────────────────────┐     ┌─────────────────┐
-│   Frontend   │────▶│  Netlify Function   │────▶│  Binance P2P    │
-│              │     │  /binance-rate      │     │  API            │
-└──────────────┘     └─────────────────────┘     └─────────────────┘
+┌──────────────┐     ┌──────────────────────┐     ┌─────────────────┐
+│   Frontend   │────▶│  Cloudflare Worker   │────▶│  Binance P2P    │
+│              │     │  /api/binance-rate   │     │  API            │
+└──────────────┘     └──────────────────────┘     └─────────────────┘
 ```
 
-### ¿Por qué una Netlify Function?
+### ¿Por qué pasar por el Worker?
 
-La API de Binance P2P tiene restricciones **CORS** que impiden llamarla directamente desde el navegador. La function actúa como proxy:
+La API de Binance P2P bloquea **CORS** desde navegadores. El Worker actúa como proxy:
 
-1. El frontend llama a `/.netlify/functions/binance-rate`
-2. La function (servidor) llama a Binance P2P
-3. Binance responde a la function
-4. La function devuelve los datos al frontend
+1. El frontend llama a `/api/binance-rate`
+2. El Worker (servidor) llama a Binance P2P
+3. Binance responde al Worker
+4. El Worker devuelve los datos al frontend, con cache de 30s en memoria
 
 ### Endpoint de Binance P2P
 
@@ -202,14 +226,14 @@ POST https://p2p.binance.com/bapi/c2c/v2/friendly/c2c/adv/search
 }
 ```
 
-### Probar la Function
+### Probar el endpoint
 
 ```bash
-# Localmente (con netlify dev corriendo)
-curl http://localhost:8888/.netlify/functions/binance-rate
+# Localmente (con pnpm run dev)
+curl http://localhost:3000/api/binance-rate
 
-# En producción
-curl https://tuapp.netlify.app/.netlify/functions/binance-rate
+# En produccion
+curl https://criptoguia.<tu-subdominio>.workers.dev/api/binance-rate
 ```
 
 ---
@@ -249,8 +273,10 @@ curl https://tuapp.netlify.app/.netlify/functions/binance-rate
 
 3. **Reiniciar el servidor de desarrollo:**
    ```bash
-   npm run dev
+   pnpm run dev
    ```
+
+> ⚠️ **Nota de seguridad:** Hoy el chat IA llama a Groq directamente desde el navegador, lo que expone la API key (Vite `VITE_*` queda en el bundle). Para produccion se recomienda mover esa llamada al Worker (`/api/ai-chat`) y guardar la key como secret de Cloudflare con `wrangler secret put GROQ_API_KEY`.
 
 ### Características Implementadas
 
@@ -322,26 +348,36 @@ const MAX_MESSAGES_PER_SESSION = 10;               // Límite diario
 
 ## 📤 Despliegue
 
-### Despliegue Automático (Netlify)
+### Despliegue manual a Cloudflare Workers
 
-1. Conecta tu repositorio de GitHub a Netlify
-2. Netlify detectará automáticamente la configuración
-3. Cada push a `main` desplegará automáticamente
-
-### Configuración de Build (netlify.toml)
-
-```toml
-[functions]
-  directory = "netlify/functions"
-
-[dev]
-  command = "npm run dev"
-  targetPort = 3000
-  port = 8888
+```bash
+pnpm exec wrangler login   # solo la primera vez
+pnpm run deploy
 ```
-## Tambien intenta correr si no funciona el binance ##
 
-npm run dev:full
+`pnpm run deploy` ejecuta `vite build` (genera `dist/`) y luego `wrangler deploy`, que sube el Worker (`worker/index.ts`) junto con los assets de la SPA (`dist/client`) usando el binding `ASSETS` definido en `wrangler.jsonc`.
+
+### Configuración Cloudflare (wrangler.jsonc)
+
+```jsonc
+{
+  "name": "criptoguia",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-05-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist/client",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  }
+}
+```
+
+### Despliegue automatico (CI/CD)
+
+Para desplegar en cada push a `main` puedes:
+- Conectar el repo a **Cloudflare Pages** (workers + assets) desde el dashboard, o
+- Usar GitHub Actions con `cloudflare/wrangler-action` ejecutando `pnpm run deploy`
 
 ---
 

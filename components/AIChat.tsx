@@ -105,7 +105,7 @@ const AIChat: React.FC = () => {
               const binanceData = await getBinanceRate();
               let bcvVal;
               try {
-                  const resUsd = await fetch('/.netlify/functions/dolar-rate');
+                  const resUsd = await fetch('/api/dolar-rate');
                   const dataUsd = await resUsd.json();
                   if (dataUsd.success && dataUsd.valor) {
                       bcvVal = parseFloat(dataUsd.valor);
@@ -116,7 +116,7 @@ const AIChat: React.FC = () => {
 
               let euroVal;
               try {
-                  const resEuro = await fetch('/.netlify/functions/euro-rate');
+                  const resEuro = await fetch('/api/euro-rate');
                   const dataEuro = await resEuro.json();
                   if (dataEuro.success && dataEuro.valor) {
                       euroVal = parseFloat(dataEuro.valor);

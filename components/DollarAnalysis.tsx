@@ -27,7 +27,7 @@ const DollarAnalysis: React.FC = () => {
 
             // 2. Fetch BCV Rate
             try {
-                const resUsd = await fetch('/.netlify/functions/dolar-rate');
+                const resUsd = await fetch('/api/dolar-rate');
                 const dataUsd = await resUsd.json();
                 if (dataUsd.success && dataUsd.valor) {
                     setBcvRate(parseFloat(dataUsd.valor));

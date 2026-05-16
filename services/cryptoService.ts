@@ -27,7 +27,7 @@ export interface CryptoPricesResponse {
  * Obtiene los precios actuales de las principales criptomonedas
  */
 export async function getCryptoPrices(): Promise<CryptoPricesResponse> {
-    const response = await fetch('/.netlify/functions/crypto-prices');
+    const response = await fetch('/api/crypto-prices');
 
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

@@ -19,7 +19,7 @@ export interface BinanceRateResponse {
  * @returns Promise with the rate data
  */
 export async function getBinanceRate(): Promise<BinanceRateResponse> {
-    const response = await fetch('/.netlify/functions/binance-rate');
+    const response = await fetch('/api/binance-rate');
 
     if (!response.ok) {
         throw new Error(`HTTP error: ${response.status}`);

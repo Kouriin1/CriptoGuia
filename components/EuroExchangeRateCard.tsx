@@ -20,7 +20,7 @@ const EuroExchangeRateCard: React.FC<EuroProps> = ({ onSwitch }) => {
   const fetchRate = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch('/.netlify/functions/euro-rate');
+      const response = await fetch('/api/euro-rate');
       if (!response.ok) throw new Error('Error al conectar con la función');
       const data: BCVData = await response.json();
       if (data.success) {
